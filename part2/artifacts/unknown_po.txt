@@ -1,0 +1,15 @@
+INVOICE
+From: Harbor Line Haul
+Invoice number: INV-2044
+Date: Sept 8, 2026
+
+Bill To
+Northline Freight Brokerage
+
+Reference / PO: PO-9999
+Load: Newark to Atlanta, dry van
+
+Total charges: $8,300.00 USD
+
+Please pay to Harbor Line Haul, Net 21.
+If you have questions call dispatch, the PO should be on the rate con.

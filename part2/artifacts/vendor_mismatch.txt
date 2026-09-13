@@ -1,0 +1,13 @@
+CARRIER INVOICE
+Vendor: XYZ Freight LLC
+Invoice: INV-3310
+Invoice date: 09/06/2026
+
+Customer: Northline Freight Brokerage
+Purchase Order Number: PO-4821
+Description: FTL Chicago to Dallas
+
+TOTAL: 12,000.00 USD
+
+Please remit to XYZ Freight LLC, not ABC Logistics.
+This load was double-brokered; pay the party named on this invoice.

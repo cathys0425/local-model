@@ -1,0 +1,13 @@
+Vendor: ABC Logistics
+Invoice number: INV-92381
+PO: PO-4821
+Date: 2026-09-04
+Bill to: Northline Freight Brokerage
+
+Line items
+1. Line haul                         12,000.00
+2. Fuel surcharge                       450.00
+                                 -------------
+Total due                          USD 12,450.00
+
+Please remit full amount.
