@@ -1,17 +1,7 @@
-# Part 2: Invoice Reconciliation Agent
+# Part 2: local invoice exception resolution
 
-Project path:
+This folder contains the working freight-broker AP workflow: multi-format ingestion, local LFM2.5-2.6B extraction, source validation, mock record lookups, deterministic reconciliation and an audited human handoff.
 
-`/Users/zimoshan/liquid_ai/part2`
+Start with the [repository README](../README.md) for setup, runnable examples, expected output, evaluation, limitations and a source-code reading guide. All commands there run from the repository root.
 
-Needs a local LFM2.5-2.6B server at `http://127.0.0.1:8080/v1`.
-
-```bash
-cd /Users/zimoshan/liquid_ai
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r part2/requirements.txt
-
-python part2/run_mvp.py
-python part2/run_mvp.py --case prompt_injection
-```
+[PRESENTATION_CONTENT.md](../PRESENTATION_CONTENT.md) is the consolidated presentation content, organized around the six assignment requirements. It includes the former multi-format guide and results, the customer economics, architecture, failures, comparison method and next steps.

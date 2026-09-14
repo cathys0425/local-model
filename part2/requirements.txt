@@ -1,1 +1,2 @@
-openai
+openai==3.13.0
+pypdf==6.10.0

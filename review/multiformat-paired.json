@@ -1,0 +1,1786 @@
+{
+  "scope": "synthetic development regression; not independent holdout",
+  "manifest_sha256": "579c57501a231df98414b87cafeb3cfb22a49027c40c6ab1281a039dbcb42bb4",
+  "platform": "macOS-26.3-arm64-arm-64bit",
+  "model": "lfm2.5-2.6b",
+  "endpoint": "http://127.0.0.1:8080/v1",
+  "larger_model": "not run",
+  "larger_endpoint": null,
+  "brief": "deterministic for every method",
+  "results": [
+    {
+      "id": "overcharge_pdf",
+      "case_group": "overcharge",
+      "format": "pdf",
+      "method": "rules",
+      "gold_exception": "amount_mismatch",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": true,
+      "pipeline_seconds": 0.108,
+      "ingestion_seconds": 0.069,
+      "processing_seconds": 0.039,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "po_number": "PO-4821",
+          "invoice_number": "INV-7201",
+          "vendor_name": "ABC Logistics",
+          "invoice_amount": "12450.00",
+          "currency": "USD",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "12000.00",
+              "evidence": "  1. Line haul                                                                                        12,000.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "450.00",
+              "evidence": "  2. Fuel surcharge                                                                                      450.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-4821",
+            "vendor_name": "Vendor: ABC Logistics",
+            "invoice_number": "Invoice number: INV-7201",
+            "invoice_amount": "  Total due: USD 12,450.00",
+            "currency": "  DESCRIPTION                                                                                   CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "po_number": "PO-4821",
+            "vendor": "ABC Logistics",
+            "amount": 12000.0,
+            "currency": "USD",
+            "lane": "Chicago, IL -> Dallas, TX",
+            "service": "FTL dry van",
+            "status": "open"
+          },
+          "vendor": {
+            "vendor_id": "V-100",
+            "legal_name": "ABC Logistics",
+            "aliases": [
+              "ABC Logistics Inc",
+              "ABC Logistics, Inc.",
+              "A.B.C. Logistics"
+            ],
+            "ap_contact": "billing@abclogistics.example",
+            "payment_terms": "Net 30",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": true,
+          "vendor_found": true,
+          "vendor_matches_po": true,
+          "currency_matches": true,
+          "policy_found": true,
+          "invoice_amount": "12450.00",
+          "po_amount": "12000.00",
+          "tolerance_usd": "100.00",
+          "amount_delta": "450.00",
+          "within_tolerance": false,
+          "line_items_total": "12450.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": "open",
+          "validation_errors": []
+        },
+        "disposition": {
+          "status": "HUMAN_APPROVAL_REQUIRED",
+          "exception_type": "amount_mismatch",
+          "recommended_action": "short_pay",
+          "rationale": "Invoice exceeds PO by 450.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup.",
+          "confidence": "high",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 450.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12450.00 against PO-4821 at 12000.00. The variance is 450.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. Please provide supporting backup for the variance. No payment has been approved.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "method": "regex"
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7201\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                              ",
+        "status": "HUMAN_APPROVAL_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "57980bbd-2f44-4ba4-920e-ae029922f8f3",
+        "created_at": "2026-09-14T03:02:34.368298+00:00",
+        "source_email_preview": "",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/overcharge.pdf",
+              "sha256": "be56f03a13e4def9f609acb6fc10633766d449737a01b32acf86b777075c551a",
+              "format": "pdf",
+              "pages": [
+                {
+                  "method": "pdf_text",
+                  "page": 1
+                }
+              ],
+              "text": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7201\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                                                        12,000.00\n\n  2. Fuel surcharge                                                                                      450.00\n\n\n  Total due: USD 12,450.00\n\n\n\n\n\nPlease reference the invoice and PO when requesting charge backup.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSYNTHETIC DEMO DOCUMENT | No payment or remittance instructions                                           Page 1 of 1"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 0.069,
+          "benchmark_method": "rules"
+        }
+      }
+    },
+    {
+      "id": "overcharge_pdf",
+      "case_group": "overcharge",
+      "format": "pdf",
+      "method": "lfm",
+      "gold_exception": "amount_mismatch",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": true,
+      "pipeline_seconds": 20.37,
+      "ingestion_seconds": 0.069,
+      "processing_seconds": 20.302,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "invoice_number": "INV-7201",
+          "currency": "USD",
+          "notes": "",
+          "po_number": "PO-4821",
+          "vendor_name": "ABC Logistics",
+          "invoice_amount": "12450.00",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "12000.00",
+              "evidence": "  1. Line haul                                                                                        12,000.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "450.00",
+              "evidence": "  2. Fuel surcharge                                                                                      450.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-4821",
+            "vendor_name": "Vendor: ABC Logistics",
+            "invoice_number": "Invoice number: INV-7201",
+            "invoice_amount": "  Total due: USD 12,450.00",
+            "currency": "  DESCRIPTION                                                                                   CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "po_number": "PO-4821",
+            "vendor": "ABC Logistics",
+            "amount": 12000.0,
+            "currency": "USD",
+            "lane": "Chicago, IL -> Dallas, TX",
+            "service": "FTL dry van",
+            "status": "open"
+          },
+          "vendor": {
+            "vendor_id": "V-100",
+            "legal_name": "ABC Logistics",
+            "aliases": [
+              "ABC Logistics Inc",
+              "ABC Logistics, Inc.",
+              "A.B.C. Logistics"
+            ],
+            "ap_contact": "billing@abclogistics.example",
+            "payment_terms": "Net 30",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": true,
+          "vendor_found": true,
+          "vendor_matches_po": true,
+          "currency_matches": true,
+          "policy_found": true,
+          "invoice_amount": "12450.00",
+          "po_amount": "12000.00",
+          "tolerance_usd": "100.00",
+          "amount_delta": "450.00",
+          "within_tolerance": false,
+          "line_items_total": "12450.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": "open",
+          "validation_errors": []
+        },
+        "disposition": {
+          "status": "HUMAN_APPROVAL_REQUIRED",
+          "exception_type": "amount_mismatch",
+          "recommended_action": "short_pay",
+          "rationale": "Invoice exceeds PO by 450.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup.",
+          "confidence": "high",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 450.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12450.00 against PO-4821 at 12000.00. The variance is 450.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. Please provide supporting backup for the variance. No payment has been approved.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "finish_reason": "tool_calls",
+          "latency_seconds": 20.3,
+          "completion_tokens": 553,
+          "tool_call_count": 1
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7201\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                              ",
+        "status": "HUMAN_APPROVAL_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "8d93c76a-3d33-4788-bd8d-cbba02b68262",
+        "created_at": "2026-09-14T03:02:54.669913+00:00",
+        "source_email_preview": "",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/overcharge.pdf",
+              "sha256": "be56f03a13e4def9f609acb6fc10633766d449737a01b32acf86b777075c551a",
+              "format": "pdf",
+              "pages": [
+                {
+                  "method": "pdf_text",
+                  "page": 1
+                }
+              ],
+              "text": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7201\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                                                        12,000.00\n\n  2. Fuel surcharge                                                                                      450.00\n\n\n  Total due: USD 12,450.00\n\n\n\n\n\nPlease reference the invoice and PO when requesting charge backup.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSYNTHETIC DEMO DOCUMENT | No payment or remittance instructions                                           Page 1 of 1"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 0.069,
+          "benchmark_method": "lfm"
+        }
+      }
+    },
+    {
+      "id": "matched_png",
+      "case_group": "matched",
+      "format": "png",
+      "method": "rules",
+      "gold_exception": "matched",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": true,
+      "pipeline_seconds": 0.314,
+      "ingestion_seconds": 0.311,
+      "processing_seconds": 0.002,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "po_number": "PO-5502",
+          "invoice_number": "INV-7202",
+          "vendor_name": "Harbor Line Haul",
+          "invoice_amount": "8300.00",
+          "currency": "USD",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "8000.00",
+              "evidence": "1. Line haul  8,000.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "300.00",
+              "evidence": "2. Fuel surcharge  300.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-5502",
+            "vendor_name": "Vendor: Harbor Line Haul",
+            "invoice_number": "Invoice number: INV-7202",
+            "invoice_amount": "Total due: USD 8,300.00",
+            "currency": "DESCRIPTION  CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "po_number": "PO-5502",
+            "vendor": "Harbor Line Haul",
+            "amount": 8300.0,
+            "currency": "USD",
+            "lane": "Newark, NJ -> Atlanta, GA",
+            "service": "FTL dry van",
+            "status": "open"
+          },
+          "vendor": {
+            "vendor_id": "V-204",
+            "legal_name": "Harbor Line Haul",
+            "aliases": [
+              "Harbor Linehaul",
+              "Harbor Line Haul LLC"
+            ],
+            "ap_contact": "invoices@harborline.example",
+            "payment_terms": "Net 21",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": true,
+          "vendor_found": true,
+          "vendor_matches_po": true,
+          "currency_matches": true,
+          "policy_found": true,
+          "invoice_amount": "8300.00",
+          "po_amount": "8300.00",
+          "tolerance_usd": "100.00",
+          "amount_delta": "0.00",
+          "within_tolerance": true,
+          "line_items_total": "8300.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": "open",
+          "validation_errors": []
+        },
+        "disposition": {
+          "status": "HUMAN_APPROVAL_REQUIRED",
+          "exception_type": "matched",
+          "recommended_action": "approve_match",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
+          "confidence": "high",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "method": "regex"
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nInvoice number: INV-7202\nPO: PO-5502\nBill to: Northline Freight Brokerage\nVendor: Harbor Line Haul\nTerms: Net 30\nInvoice date: 2026-09-04\nDESCRIPTION  CHARGE (USD)\n1. Line haul  8,000.00\n2. Fuel surcharge  300.00\nTotal due: USD 8,300.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No paymen",
+        "status": "HUMAN_APPROVAL_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "9711f80d-72ff-4e5a-b02e-66c0c84f1d62",
+        "created_at": "2026-09-14T03:02:54.985954+00:00",
+        "source_email_preview": "",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/matched.png",
+              "sha256": "faceb6d8c052e3f15519945461b192ab5001949ae446f7501867162565980592",
+              "format": "png",
+              "pages": [
+                {
+                  "method": "apple_vision",
+                  "minimum_confidence": 1,
+                  "boxes": [
+                    {
+                      "y": 0.94629199017608,
+                      "confidence": 1,
+                      "x": 0.06766917683186556,
+                      "height": 0.026304909388224273,
+                      "text": "FREIGHT INVOICE"
+                    },
+                    {
+                      "y": 0.9054243974207197,
+                      "confidence": 1,
+                      "x": 0.06746498142311452,
+                      "height": 0.01874571588304308,
+                      "text": "Carrier settlement I Domestic transportation"
+                    },
+                    {
+                      "y": 0.8263081394743217,
+                      "confidence": 1,
+                      "x": 0.06578946879042215,
+                      "height": 0.013081394831339521,
+                      "text": "Invoice number: INV-7202"
+                    },
+                    {
+                      "y": 0.794331395537555,
+                      "confidence": 1,
+                      "x": 0.0675667878113759,
+                      "height": 0.016937001546223907,
+                      "text": "PO: PO-5502"
+                    },
+                    {
+                      "y": 0.7616666665107301,
+                      "confidence": 1,
+                      "x": 0.06766917930314316,
+                      "height": 0.017777777247958704,
+                      "text": "Bill to: Northline Freight Brokerage"
+                    },
+                    {
+                      "y": 0.7311046509811047,
+                      "confidence": 1,
+                      "x": 0.06766917461833487,
+                      "height": 0.014534883499145446,
+                      "text": "Vendor: Harbor Line Haul"
+                    },
+                    {
+                      "y": 0.7005813955305232,
+                      "confidence": 1,
+                      "x": 0.06766917045725268,
+                      "height": 0.014534883499145446,
+                      "text": "Terms: Net 30"
+                    },
+                    {
+                      "y": 0.6686111113193206,
+                      "confidence": 1,
+                      "x": 0.06578947250374066,
+                      "height": 0.014999999999999902,
+                      "text": "Invoice date: 2026-09-04"
+                    },
+                    {
+                      "y": 0.5494186047238372,
+                      "confidence": 1,
+                      "x": 0.08458646814707065,
+                      "height": 0.01162790722317164,
+                      "text": "DESCRIPTION"
+                    },
+                    {
+                      "y": 0.5036337207218842,
+                      "confidence": 1,
+                      "x": 0.08445973610942051,
+                      "height": 0.01699904547797304,
+                      "text": "1. Line haul"
+                    },
+                    {
+                      "y": 0.45928940548635866,
+                      "confidence": 1,
+                      "x": 0.0827067704746585,
+                      "height": 0.01746770011054144,
+                      "text": "2. Fuel surcharge"
+                    },
+                    {
+                      "y": 0.548620801088558,
+                      "confidence": 1,
+                      "x": 0.7744360874934643,
+                      "height": 0.016130490832858668,
+                      "text": "CHARGE (USD)"
+                    },
+                    {
+                      "y": 0.5036337207753241,
+                      "confidence": 1,
+                      "x": 0.8307010304245331,
+                      "height": 0.019565955268012192,
+                      "text": "8,000.00"
+                    },
+                    {
+                      "y": 0.4600290696327901,
+                      "confidence": 1,
+                      "x": 0.8477159667658095,
+                      "height": 0.019013907114664663,
+                      "text": "300.00"
+                    },
+                    {
+                      "y": 0.3916925063522292,
+                      "confidence": 1,
+                      "x": 0.08270676724113028,
+                      "height": 0.018940568500094956,
+                      "text": "Total due: USD 8,300.00"
+                    },
+                    {
+                      "y": 0.3103197674600291,
+                      "confidence": 1,
+                      "x": 0.06954889286540308,
+                      "height": 0.013081394831339521,
+                      "text": "Please reference the invoice and PO when requesting charge backup."
+                    },
+                    {
+                      "y": 0.0842248059723511,
+                      "confidence": 1,
+                      "x": 0.0695488752283919,
+                      "height": 0.01178294552697079,
+                      "text": "SYNTHETIC DEMO DOCUMENT I No payment or remittance instructions"
+                    },
+                    {
+                      "y": 0.08430232546424032,
+                      "confidence": 1,
+                      "x": 0.8571021340092455,
+                      "height": 0.011938919491238043,
+                      "text": "Page 1 of 1"
+                    }
+                  ],
+                  "review_required": false
+                }
+              ],
+              "text": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nInvoice number: INV-7202\nPO: PO-5502\nBill to: Northline Freight Brokerage\nVendor: Harbor Line Haul\nTerms: Net 30\nInvoice date: 2026-09-04\nDESCRIPTION  CHARGE (USD)\n1. Line haul  8,000.00\n2. Fuel surcharge  300.00\nTotal due: USD 8,300.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No payment or remittance instructions  Page 1 of 1"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 0.311,
+          "benchmark_method": "rules"
+        }
+      }
+    },
+    {
+      "id": "matched_png",
+      "case_group": "matched",
+      "format": "png",
+      "method": "lfm",
+      "gold_exception": "matched",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": true,
+      "pipeline_seconds": 36.746,
+      "ingestion_seconds": 0.311,
+      "processing_seconds": 36.435,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "invoice_number": "INV-7202",
+          "currency": "USD",
+          "notes": "Terms: Net 30",
+          "po_number": "PO-5502",
+          "vendor_name": "Harbor Line Haul",
+          "invoice_amount": "8300.00",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "8000.00",
+              "evidence": "1. Line haul  8,000.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "300.00",
+              "evidence": "2. Fuel surcharge  300.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-5502",
+            "vendor_name": "Vendor: Harbor Line Haul",
+            "invoice_number": "Invoice number: INV-7202",
+            "invoice_amount": "Total due: USD 8,300.00",
+            "currency": "DESCRIPTION  CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "po_number": "PO-5502",
+            "vendor": "Harbor Line Haul",
+            "amount": 8300.0,
+            "currency": "USD",
+            "lane": "Newark, NJ -> Atlanta, GA",
+            "service": "FTL dry van",
+            "status": "open"
+          },
+          "vendor": {
+            "vendor_id": "V-204",
+            "legal_name": "Harbor Line Haul",
+            "aliases": [
+              "Harbor Linehaul",
+              "Harbor Line Haul LLC"
+            ],
+            "ap_contact": "invoices@harborline.example",
+            "payment_terms": "Net 21",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": true,
+          "vendor_found": true,
+          "vendor_matches_po": true,
+          "currency_matches": true,
+          "policy_found": true,
+          "invoice_amount": "8300.00",
+          "po_amount": "8300.00",
+          "tolerance_usd": "100.00",
+          "amount_delta": "0.00",
+          "within_tolerance": true,
+          "line_items_total": "8300.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": "open",
+          "validation_errors": []
+        },
+        "disposition": {
+          "status": "HUMAN_APPROVAL_REQUIRED",
+          "exception_type": "matched",
+          "recommended_action": "approve_match",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
+          "confidence": "high",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "finish_reason": "tool_calls",
+          "latency_seconds": 36.42,
+          "completion_tokens": 1143,
+          "tool_call_count": 1
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nInvoice number: INV-7202\nPO: PO-5502\nBill to: Northline Freight Brokerage\nVendor: Harbor Line Haul\nTerms: Net 30\nInvoice date: 2026-09-04\nDESCRIPTION  CHARGE (USD)\n1. Line haul  8,000.00\n2. Fuel surcharge  300.00\nTotal due: USD 8,300.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No paymen",
+        "status": "HUMAN_APPROVAL_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "3270f3f1-5e18-42dc-a43a-b1aebdb26a3d",
+        "created_at": "2026-09-14T03:03:31.416942+00:00",
+        "source_email_preview": "",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/matched.png",
+              "sha256": "faceb6d8c052e3f15519945461b192ab5001949ae446f7501867162565980592",
+              "format": "png",
+              "pages": [
+                {
+                  "method": "apple_vision",
+                  "minimum_confidence": 1,
+                  "boxes": [
+                    {
+                      "y": 0.94629199017608,
+                      "confidence": 1,
+                      "x": 0.06766917683186556,
+                      "height": 0.026304909388224273,
+                      "text": "FREIGHT INVOICE"
+                    },
+                    {
+                      "y": 0.9054243974207197,
+                      "confidence": 1,
+                      "x": 0.06746498142311452,
+                      "height": 0.01874571588304308,
+                      "text": "Carrier settlement I Domestic transportation"
+                    },
+                    {
+                      "y": 0.8263081394743217,
+                      "confidence": 1,
+                      "x": 0.06578946879042215,
+                      "height": 0.013081394831339521,
+                      "text": "Invoice number: INV-7202"
+                    },
+                    {
+                      "y": 0.794331395537555,
+                      "confidence": 1,
+                      "x": 0.0675667878113759,
+                      "height": 0.016937001546223907,
+                      "text": "PO: PO-5502"
+                    },
+                    {
+                      "y": 0.7616666665107301,
+                      "confidence": 1,
+                      "x": 0.06766917930314316,
+                      "height": 0.017777777247958704,
+                      "text": "Bill to: Northline Freight Brokerage"
+                    },
+                    {
+                      "y": 0.7311046509811047,
+                      "confidence": 1,
+                      "x": 0.06766917461833487,
+                      "height": 0.014534883499145446,
+                      "text": "Vendor: Harbor Line Haul"
+                    },
+                    {
+                      "y": 0.7005813955305232,
+                      "confidence": 1,
+                      "x": 0.06766917045725268,
+                      "height": 0.014534883499145446,
+                      "text": "Terms: Net 30"
+                    },
+                    {
+                      "y": 0.6686111113193206,
+                      "confidence": 1,
+                      "x": 0.06578947250374066,
+                      "height": 0.014999999999999902,
+                      "text": "Invoice date: 2026-09-04"
+                    },
+                    {
+                      "y": 0.5494186047238372,
+                      "confidence": 1,
+                      "x": 0.08458646814707065,
+                      "height": 0.01162790722317164,
+                      "text": "DESCRIPTION"
+                    },
+                    {
+                      "y": 0.5036337207218842,
+                      "confidence": 1,
+                      "x": 0.08445973610942051,
+                      "height": 0.01699904547797304,
+                      "text": "1. Line haul"
+                    },
+                    {
+                      "y": 0.45928940548635866,
+                      "confidence": 1,
+                      "x": 0.0827067704746585,
+                      "height": 0.01746770011054144,
+                      "text": "2. Fuel surcharge"
+                    },
+                    {
+                      "y": 0.548620801088558,
+                      "confidence": 1,
+                      "x": 0.7744360874934643,
+                      "height": 0.016130490832858668,
+                      "text": "CHARGE (USD)"
+                    },
+                    {
+                      "y": 0.5036337207753241,
+                      "confidence": 1,
+                      "x": 0.8307010304245331,
+                      "height": 0.019565955268012192,
+                      "text": "8,000.00"
+                    },
+                    {
+                      "y": 0.4600290696327901,
+                      "confidence": 1,
+                      "x": 0.8477159667658095,
+                      "height": 0.019013907114664663,
+                      "text": "300.00"
+                    },
+                    {
+                      "y": 0.3916925063522292,
+                      "confidence": 1,
+                      "x": 0.08270676724113028,
+                      "height": 0.018940568500094956,
+                      "text": "Total due: USD 8,300.00"
+                    },
+                    {
+                      "y": 0.3103197674600291,
+                      "confidence": 1,
+                      "x": 0.06954889286540308,
+                      "height": 0.013081394831339521,
+                      "text": "Please reference the invoice and PO when requesting charge backup."
+                    },
+                    {
+                      "y": 0.0842248059723511,
+                      "confidence": 1,
+                      "x": 0.0695488752283919,
+                      "height": 0.01178294552697079,
+                      "text": "SYNTHETIC DEMO DOCUMENT I No payment or remittance instructions"
+                    },
+                    {
+                      "y": 0.08430232546424032,
+                      "confidence": 1,
+                      "x": 0.8571021340092455,
+                      "height": 0.011938919491238043,
+                      "text": "Page 1 of 1"
+                    }
+                  ],
+                  "review_required": false
+                }
+              ],
+              "text": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nInvoice number: INV-7202\nPO: PO-5502\nBill to: Northline Freight Brokerage\nVendor: Harbor Line Haul\nTerms: Net 30\nInvoice date: 2026-09-04\nDESCRIPTION  CHARGE (USD)\n1. Line haul  8,000.00\n2. Fuel surcharge  300.00\nTotal due: USD 8,300.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No payment or remittance instructions  Page 1 of 1"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 0.311,
+          "benchmark_method": "lfm"
+        }
+      }
+    },
+    {
+      "id": "unknown_scan_pdf",
+      "case_group": "unknown",
+      "format": "scan_pdf",
+      "method": "rules",
+      "gold_exception": "unknown_po",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": false,
+      "pipeline_seconds": 1.631,
+      "ingestion_seconds": 1.622,
+      "processing_seconds": 0.008,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "po_number": "PO-9999",
+          "invoice_number": "INV-7203",
+          "vendor_name": "ABC Logistics",
+          "invoice_amount": "12450.00",
+          "currency": "USD",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "12000.00",
+              "evidence": "1. Line haul  12,000.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "450.00",
+              "evidence": "2. Fuel surcharge  450.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-9999",
+            "vendor_name": "Remit to: ABC Logistics",
+            "invoice_number": "Invoice number: INV-7203",
+            "invoice_amount": "Total due: USD 12,450.00",
+            "currency": "DESCRIPTION  CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "error": "PO-9999 not found"
+          },
+          "vendor": {
+            "vendor_id": "V-100",
+            "legal_name": "ABC Logistics",
+            "aliases": [
+              "ABC Logistics Inc",
+              "ABC Logistics, Inc.",
+              "A.B.C. Logistics"
+            ],
+            "ap_contact": "billing@abclogistics.example",
+            "payment_terms": "Net 30",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": false,
+          "vendor_found": true,
+          "vendor_matches_po": false,
+          "currency_matches": false,
+          "policy_found": true,
+          "invoice_amount": "12450.00",
+          "po_amount": null,
+          "tolerance_usd": "100.00",
+          "amount_delta": null,
+          "within_tolerance": false,
+          "line_items_total": "12450.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": null,
+          "validation_errors": [
+            "po_amount: amount must be a decimal number"
+          ]
+        },
+        "disposition": {
+          "status": "HUMAN_REVIEW_REQUIRED",
+          "exception_type": "unknown_po",
+          "recommended_action": "request_information",
+          "rationale": "No matching purchase order in the broker TMS.",
+          "confidence": "low",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: request_information. No matching purchase order in the broker TMS. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Need backup for INV-7203\n\nHello ABC Logistics billing team,\n\nWe cannot match invoice INV-7203 to an active purchase order (PO-9999). Please send the signed rate confirmation or a valid PO number.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "method": "regex"
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nRemit to: ABC Logistics\nInvoice number: INV-7203\nPO: PO-9999\nBill to: Northline Freight Brokerage\nInvoice date: 2026-09-04\nTerms: Net 30\nDESCRIPTION  CHARGE (USD)\n1. Line haul  12,000.00\n2. Fuel surcharge  450.00\nTotal due: USD 12,450.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No payme",
+        "status": "HUMAN_REVIEW_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "78925043-341b-48dd-a048-cc4cba4cbc6e",
+        "created_at": "2026-09-14T03:03:33.060619+00:00",
+        "source_email_preview": "",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/unknown_scan.pdf",
+              "sha256": "7715f5c471fba9080f3381972dcc1d39b89713e41982e8fdb9bd3deef2778583",
+              "format": "pdf",
+              "pages": [
+                {
+                  "method": "apple_vision",
+                  "minimum_confidence": 1,
+                  "boxes": [
+                    {
+                      "y": 0.9462209303133075,
+                      "confidence": 1,
+                      "x": 0.06766917683186556,
+                      "height": 0.026162789662679042,
+                      "text": "FREIGHT INVOICE"
+                    },
+                    {
+                      "y": 0.9054152456718447,
+                      "confidence": 1,
+                      "x": 0.06746603655582152,
+                      "height": 0.018717278639475476,
+                      "text": "Carrier settlement I Domestic transportation"
+                    },
+                    {
+                      "y": 0.8247916666281352,
+                      "confidence": 1,
+                      "x": 0.06766917887839721,
+                      "height": 0.016249999999999987,
+                      "text": "Remit to: ABC Logistics"
+                    },
+                    {
+                      "y": 0.7951453488617979,
+                      "confidence": 1,
+                      "x": 0.06578947698825627,
+                      "height": 0.014709301789601614,
+                      "text": "Invoice number: INV-7203"
+                    },
+                    {
+                      "y": 0.7631153102705903,
+                      "confidence": 1,
+                      "x": 0.06766917235570435,
+                      "height": 0.014602713584899951,
+                      "text": "PO: PO-9999"
+                    },
+                    {
+                      "y": 0.7311918609234063,
+                      "confidence": 1,
+                      "x": 0.06766917159481271,
+                      "height": 0.01761627833048507,
+                      "text": "Bill to: Northline Freight Brokerage"
+                    },
+                    {
+                      "y": 0.7006153101396988,
+                      "confidence": 1,
+                      "x": 0.06578947242228568,
+                      "height": 0.014602712790171224,
+                      "text": "Invoice date: 2026-09-04"
+                    },
+                    {
+                      "y": 0.6685610463672697,
+                      "confidence": 1,
+                      "x": 0.06578947388624515,
+                      "height": 0.014622093041737783,
+                      "text": "Terms: Net 30"
+                    },
+                    {
+                      "y": 0.5501453489098836,
+                      "confidence": 1,
+                      "x": 0.0845864697240593,
+                      "height": 0.013081394831339521,
+                      "text": "DESCRIPTION"
+                    },
+                    {
+                      "y": 0.5043604654811289,
+                      "confidence": 1,
+                      "x": 0.08267182429845027,
+                      "height": 0.014840575059254957,
+                      "text": "1. Line haul"
+                    },
+                    {
+                      "y": 0.4590091566003679,
+                      "confidence": 1,
+                      "x": 0.08230952142973658,
+                      "height": 0.01933922449747727,
+                      "text": "2. Fuel surcharge"
+                    },
+                    {
+                      "y": 0.5486918605377906,
+                      "confidence": 1,
+                      "x": 0.7763157896058908,
+                      "height": 0.01598837216695148,
+                      "text": "CHARGE (USD)"
+                    },
+                    {
+                      "y": 0.5036337209121771,
+                      "confidence": 1,
+                      "x": 0.8194902351057278,
+                      "height": 0.019247196515401188,
+                      "text": "12,000.00"
+                    },
+                    {
+                      "y": 0.4607558140286635,
+                      "confidence": 1,
+                      "x": 0.8476565966644297,
+                      "height": 0.017841800053914447,
+                      "text": "450.00"
+                    },
+                    {
+                      "y": 0.3910319766099589,
+                      "confidence": 1,
+                      "x": 0.08270677411051425,
+                      "height": 0.020436046123504692,
+                      "text": "Total due: USD 12,450.00"
+                    },
+                    {
+                      "y": 0.3103052322338444,
+                      "confidence": 1,
+                      "x": 0.06954889103269635,
+                      "height": 0.013110464811325051,
+                      "text": "Please reference the invoice and PO when requesting charge backup."
+                    },
+                    {
+                      "y": 0.08422480616947003,
+                      "confidence": 1,
+                      "x": 0.06954888634523813,
+                      "height": 0.011782945394515965,
+                      "text": "SYNTHETIC DEMO DOCUMENT I No payment or remittance instructions"
+                    },
+                    {
+                      "y": 0.08430232539291599,
+                      "confidence": 1,
+                      "x": 0.8570216867164188,
+                      "height": 0.012578814824422246,
+                      "text": "Page 1 of 1"
+                    }
+                  ],
+                  "review_required": false,
+                  "page": 1
+                }
+              ],
+              "text": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nRemit to: ABC Logistics\nInvoice number: INV-7203\nPO: PO-9999\nBill to: Northline Freight Brokerage\nInvoice date: 2026-09-04\nTerms: Net 30\nDESCRIPTION  CHARGE (USD)\n1. Line haul  12,000.00\n2. Fuel surcharge  450.00\nTotal due: USD 12,450.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No payment or remittance instructions  Page 1 of 1"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 1.622,
+          "benchmark_method": "rules"
+        }
+      }
+    },
+    {
+      "id": "unknown_scan_pdf",
+      "case_group": "unknown",
+      "format": "scan_pdf",
+      "method": "lfm",
+      "gold_exception": "unknown_po",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": false,
+      "pipeline_seconds": 79.631,
+      "ingestion_seconds": 1.622,
+      "processing_seconds": 78.008,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "invoice_number": "INV-7203",
+          "po_number": "PO-9999",
+          "vendor_name": "ABC Logistics",
+          "invoice_amount": "12450.00",
+          "currency": "USD",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "12000.00",
+              "evidence": "1. Line haul  12,000.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "450.00",
+              "evidence": "2. Fuel surcharge  450.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-9999",
+            "vendor_name": "Remit to: ABC Logistics",
+            "invoice_number": "Invoice number: INV-7203",
+            "invoice_amount": "Total due: USD 12,450.00",
+            "currency": "DESCRIPTION  CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "error": "PO-9999 not found"
+          },
+          "vendor": {
+            "vendor_id": "V-100",
+            "legal_name": "ABC Logistics",
+            "aliases": [
+              "ABC Logistics Inc",
+              "ABC Logistics, Inc.",
+              "A.B.C. Logistics"
+            ],
+            "ap_contact": "billing@abclogistics.example",
+            "payment_terms": "Net 30",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": false,
+          "vendor_found": true,
+          "vendor_matches_po": false,
+          "currency_matches": false,
+          "policy_found": true,
+          "invoice_amount": "12450.00",
+          "po_amount": null,
+          "tolerance_usd": "100.00",
+          "amount_delta": null,
+          "within_tolerance": false,
+          "line_items_total": "12450.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": null,
+          "validation_errors": [
+            "po_amount: amount must be a decimal number"
+          ]
+        },
+        "disposition": {
+          "status": "HUMAN_REVIEW_REQUIRED",
+          "exception_type": "unknown_po",
+          "recommended_action": "request_information",
+          "rationale": "No matching purchase order in the broker TMS.",
+          "confidence": "low",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: request_information. No matching purchase order in the broker TMS. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Need backup for INV-7203\n\nHello ABC Logistics billing team,\n\nWe cannot match invoice INV-7203 to an active purchase order (PO-9999). Please send the signed rate confirmation or a valid PO number.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "finish_reason": "tool_calls",
+          "latency_seconds": 77.98,
+          "completion_tokens": 717,
+          "tool_call_count": 1
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nRemit to: ABC Logistics\nInvoice number: INV-7203\nPO: PO-9999\nBill to: Northline Freight Brokerage\nInvoice date: 2026-09-04\nTerms: Net 30\nDESCRIPTION  CHARGE (USD)\n1. Line haul  12,000.00\n2. Fuel surcharge  450.00\nTotal due: USD 12,450.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No payme",
+        "status": "HUMAN_REVIEW_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "55c4324b-72db-48f0-89bb-1ea82ea22e3c",
+        "created_at": "2026-09-14T03:04:51.062569+00:00",
+        "source_email_preview": "",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/unknown_scan.pdf",
+              "sha256": "7715f5c471fba9080f3381972dcc1d39b89713e41982e8fdb9bd3deef2778583",
+              "format": "pdf",
+              "pages": [
+                {
+                  "method": "apple_vision",
+                  "minimum_confidence": 1,
+                  "boxes": [
+                    {
+                      "y": 0.9462209303133075,
+                      "confidence": 1,
+                      "x": 0.06766917683186556,
+                      "height": 0.026162789662679042,
+                      "text": "FREIGHT INVOICE"
+                    },
+                    {
+                      "y": 0.9054152456718447,
+                      "confidence": 1,
+                      "x": 0.06746603655582152,
+                      "height": 0.018717278639475476,
+                      "text": "Carrier settlement I Domestic transportation"
+                    },
+                    {
+                      "y": 0.8247916666281352,
+                      "confidence": 1,
+                      "x": 0.06766917887839721,
+                      "height": 0.016249999999999987,
+                      "text": "Remit to: ABC Logistics"
+                    },
+                    {
+                      "y": 0.7951453488617979,
+                      "confidence": 1,
+                      "x": 0.06578947698825627,
+                      "height": 0.014709301789601614,
+                      "text": "Invoice number: INV-7203"
+                    },
+                    {
+                      "y": 0.7631153102705903,
+                      "confidence": 1,
+                      "x": 0.06766917235570435,
+                      "height": 0.014602713584899951,
+                      "text": "PO: PO-9999"
+                    },
+                    {
+                      "y": 0.7311918609234063,
+                      "confidence": 1,
+                      "x": 0.06766917159481271,
+                      "height": 0.01761627833048507,
+                      "text": "Bill to: Northline Freight Brokerage"
+                    },
+                    {
+                      "y": 0.7006153101396988,
+                      "confidence": 1,
+                      "x": 0.06578947242228568,
+                      "height": 0.014602712790171224,
+                      "text": "Invoice date: 2026-09-04"
+                    },
+                    {
+                      "y": 0.6685610463672697,
+                      "confidence": 1,
+                      "x": 0.06578947388624515,
+                      "height": 0.014622093041737783,
+                      "text": "Terms: Net 30"
+                    },
+                    {
+                      "y": 0.5501453489098836,
+                      "confidence": 1,
+                      "x": 0.0845864697240593,
+                      "height": 0.013081394831339521,
+                      "text": "DESCRIPTION"
+                    },
+                    {
+                      "y": 0.5043604654811289,
+                      "confidence": 1,
+                      "x": 0.08267182429845027,
+                      "height": 0.014840575059254957,
+                      "text": "1. Line haul"
+                    },
+                    {
+                      "y": 0.4590091566003679,
+                      "confidence": 1,
+                      "x": 0.08230952142973658,
+                      "height": 0.01933922449747727,
+                      "text": "2. Fuel surcharge"
+                    },
+                    {
+                      "y": 0.5486918605377906,
+                      "confidence": 1,
+                      "x": 0.7763157896058908,
+                      "height": 0.01598837216695148,
+                      "text": "CHARGE (USD)"
+                    },
+                    {
+                      "y": 0.5036337209121771,
+                      "confidence": 1,
+                      "x": 0.8194902351057278,
+                      "height": 0.019247196515401188,
+                      "text": "12,000.00"
+                    },
+                    {
+                      "y": 0.4607558140286635,
+                      "confidence": 1,
+                      "x": 0.8476565966644297,
+                      "height": 0.017841800053914447,
+                      "text": "450.00"
+                    },
+                    {
+                      "y": 0.3910319766099589,
+                      "confidence": 1,
+                      "x": 0.08270677411051425,
+                      "height": 0.020436046123504692,
+                      "text": "Total due: USD 12,450.00"
+                    },
+                    {
+                      "y": 0.3103052322338444,
+                      "confidence": 1,
+                      "x": 0.06954889103269635,
+                      "height": 0.013110464811325051,
+                      "text": "Please reference the invoice and PO when requesting charge backup."
+                    },
+                    {
+                      "y": 0.08422480616947003,
+                      "confidence": 1,
+                      "x": 0.06954888634523813,
+                      "height": 0.011782945394515965,
+                      "text": "SYNTHETIC DEMO DOCUMENT I No payment or remittance instructions"
+                    },
+                    {
+                      "y": 0.08430232539291599,
+                      "confidence": 1,
+                      "x": 0.8570216867164188,
+                      "height": 0.012578814824422246,
+                      "text": "Page 1 of 1"
+                    }
+                  ],
+                  "review_required": false,
+                  "page": 1
+                }
+              ],
+              "text": "FREIGHT INVOICE\nCarrier settlement I Domestic transportation\nRemit to: ABC Logistics\nInvoice number: INV-7203\nPO: PO-9999\nBill to: Northline Freight Brokerage\nInvoice date: 2026-09-04\nTerms: Net 30\nDESCRIPTION  CHARGE (USD)\n1. Line haul  12,000.00\n2. Fuel surcharge  450.00\nTotal due: USD 12,450.00\nPlease reference the invoice and PO when requesting charge backup.\nSYNTHETIC DEMO DOCUMENT I No payment or remittance instructions  Page 1 of 1"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 1.622,
+          "benchmark_method": "lfm"
+        }
+      }
+    },
+    {
+      "id": "wrong_vendor_eml",
+      "case_group": "wrong_vendor",
+      "format": "eml",
+      "method": "rules",
+      "gold_exception": "vendor_mismatch",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": false,
+      "pipeline_seconds": 2.983,
+      "ingestion_seconds": 2.579,
+      "processing_seconds": 0.405,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "po_number": "PO-4821",
+          "invoice_number": "INV-7204",
+          "vendor_name": "Harbor Line Haul",
+          "invoice_amount": "12000.00",
+          "currency": "USD",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "11700.00",
+              "evidence": "  1. Line haul                                                                                        11,700.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "300.00",
+              "evidence": "  2. Fuel surcharge                                                                                      300.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-4821",
+            "vendor_name": "Vendor: Harbor Line Haul",
+            "invoice_number": "Invoice number: INV-7204",
+            "invoice_amount": "  Total due: USD 12,000.00",
+            "currency": "  DESCRIPTION                                                                                   CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "po_number": "PO-4821",
+            "vendor": "ABC Logistics",
+            "amount": 12000.0,
+            "currency": "USD",
+            "lane": "Chicago, IL -> Dallas, TX",
+            "service": "FTL dry van",
+            "status": "open"
+          },
+          "vendor": {
+            "vendor_id": "V-204",
+            "legal_name": "Harbor Line Haul",
+            "aliases": [
+              "Harbor Linehaul",
+              "Harbor Line Haul LLC"
+            ],
+            "ap_contact": "invoices@harborline.example",
+            "payment_terms": "Net 21",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": true,
+          "vendor_found": true,
+          "vendor_matches_po": false,
+          "currency_matches": true,
+          "policy_found": true,
+          "invoice_amount": "12000.00",
+          "po_amount": "12000.00",
+          "tolerance_usd": "100.00",
+          "amount_delta": "0.00",
+          "within_tolerance": true,
+          "line_items_total": "12000.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": "open",
+          "validation_errors": []
+        },
+        "disposition": {
+          "status": "HUMAN_REVIEW_REQUIRED",
+          "exception_type": "vendor_mismatch",
+          "recommended_action": "escalate",
+          "rationale": "Invoice payee does not match the PO vendor.",
+          "confidence": "low",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice payee does not match the PO vendor. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7204 held for review\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7204 is on hold pending internal review. We will follow up after AP completes exception handling.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "method": "regex"
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: Harbor Line Haul\n\nInvoice number: INV-7204\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                           ",
+        "status": "HUMAN_REVIEW_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "00b3ea96-b0ec-4fa4-863c-3e9f12a975a4",
+        "created_at": "2026-09-14T03:04:54.230458+00:00",
+        "source_email_preview": "Invoice INV-7204 for PO-4821\nHello AP team,\nPlease review the attached invoice INV-7204 for PO-4821.\nThe fuel surcharge is listed separately. Please let us know if you need backup.\n\n> AP desk: Please include the PO reference with your invoice.\n",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/wrong_vendor.eml",
+              "sha256": "9617b6479025b93d673294d8a8848c26da1503e61c79874beba8f16316328253",
+              "format": "eml",
+              "method": "mime_plaintext",
+              "subject": "Invoice INV-7204 for PO-4821",
+              "attachment_count": 1,
+              "text": "Invoice INV-7204 for PO-4821\nHello AP team,\nPlease review the attached invoice INV-7204 for PO-4821.\nThe fuel surcharge is listed separately. Please let us know if you need backup.\n\n> AP desk: Please include the PO reference with your invoice.\n"
+            },
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/wrong_vendor.eml#attachment",
+              "sha256": "e399a57f64f6540ae2501d643febba0d5b76ecd9317c6cc2a0b16b1ea225e9a2",
+              "format": "pdf",
+              "pages": [
+                {
+                  "method": "pdf_text",
+                  "page": 1
+                }
+              ],
+              "text": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: Harbor Line Haul\n\nInvoice number: INV-7204\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                                                        11,700.00\n\n  2. Fuel surcharge                                                                                      300.00\n\n\n  Total due: USD 12,000.00\n\n\n\n\n\nPlease reference the invoice and PO when requesting charge backup.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSYNTHETIC DEMO DOCUMENT | No payment or remittance instructions                                           Page 1 of 1",
+              "attachment_name": "wrong_vendor.pdf"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 2.579,
+          "benchmark_method": "rules"
+        }
+      }
+    },
+    {
+      "id": "wrong_vendor_eml",
+      "case_group": "wrong_vendor",
+      "format": "eml",
+      "method": "lfm",
+      "gold_exception": "vendor_mismatch",
+      "fields_exact": true,
+      "field_matches": {
+        "po_number": true,
+        "invoice_number": true,
+        "vendor_name": true,
+        "invoice_amount": true,
+        "currency": true
+      },
+      "route_correct": true,
+      "proposal": false,
+      "pipeline_seconds": 60.437,
+      "ingestion_seconds": 2.579,
+      "processing_seconds": 57.858,
+      "packet": {
+        "customer": "Northline Freight Brokerage (mid-market freight broker)",
+        "queue": "AP invoice exceptions",
+        "human_decision": [
+          "approve",
+          "edit",
+          "escalate"
+        ],
+        "auto_post": false,
+        "prompt_injection_suspected": false,
+        "prompt_injection_hits": [],
+        "extraction": {
+          "invoice_number": "INV-7204",
+          "currency": "USD",
+          "notes": "",
+          "po_number": "PO-4821",
+          "vendor_name": "Harbor Line Haul",
+          "invoice_amount": "12000.00",
+          "line_items": [
+            {
+              "description": "Line haul",
+              "amount": "11700.00",
+              "evidence": "  1. Line haul                                                                                        11,700.00"
+            },
+            {
+              "description": "Fuel surcharge",
+              "amount": "300.00",
+              "evidence": "  2. Fuel surcharge                                                                                      300.00"
+            }
+          ],
+          "evidence": {
+            "po_number": "PO: PO-4821",
+            "vendor_name": "Vendor: Harbor Line Haul",
+            "invoice_number": "Invoice number: INV-7204",
+            "invoice_amount": "  Total due: USD 12,000.00",
+            "currency": "  DESCRIPTION                                                                                   CHARGE (USD)"
+          }
+        },
+        "lookups": {
+          "purchase_order": {
+            "po_number": "PO-4821",
+            "vendor": "ABC Logistics",
+            "amount": 12000.0,
+            "currency": "USD",
+            "lane": "Chicago, IL -> Dallas, TX",
+            "service": "FTL dry van",
+            "status": "open"
+          },
+          "vendor": {
+            "vendor_id": "V-204",
+            "legal_name": "Harbor Line Haul",
+            "aliases": [
+              "Harbor Linehaul",
+              "Harbor Line Haul LLC"
+            ],
+            "ap_contact": "invoices@harborline.example",
+            "payment_terms": "Net 21",
+            "tolerance_usd": "100.00"
+          },
+          "paid_invoice": null
+        },
+        "mismatch": {
+          "po_found": true,
+          "vendor_found": true,
+          "vendor_matches_po": false,
+          "currency_matches": true,
+          "policy_found": true,
+          "invoice_amount": "12000.00",
+          "po_amount": "12000.00",
+          "tolerance_usd": "100.00",
+          "amount_delta": "0.00",
+          "within_tolerance": true,
+          "line_items_total": "12000.00",
+          "line_items_match": true,
+          "already_paid": false,
+          "prior_payment": null,
+          "po_status": "open",
+          "validation_errors": []
+        },
+        "disposition": {
+          "status": "HUMAN_REVIEW_REQUIRED",
+          "exception_type": "vendor_mismatch",
+          "recommended_action": "escalate",
+          "rationale": "Invoice payee does not match the PO vendor.",
+          "confidence": "low",
+          "requires_human_approval": true,
+          "auto_post": false
+        },
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice payee does not match the PO vendor. Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7204 held for review\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7204 is on hold pending internal review. We will follow up after AP completes exception handling.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "extract_trace": {
+          "status": "ok",
+          "attempts": 1,
+          "repair_used": false,
+          "finish_reason": "tool_calls",
+          "latency_seconds": 57.84,
+          "completion_tokens": 634,
+          "tool_call_count": 1
+        },
+        "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: Harbor Line Haul\n\nInvoice number: INV-7204\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                           ",
+        "status": "HUMAN_REVIEW_REQUIRED",
+        "brief_trace": {
+          "status": "template"
+        },
+        "packet_id": "13a2763b-2a3c-443f-a5e5-f78536c13ce7",
+        "created_at": "2026-09-14T03:05:52.354349+00:00",
+        "source_email_preview": "Invoice INV-7204 for PO-4821\nHello AP team,\nPlease review the attached invoice INV-7204 for PO-4821.\nThe fuel surcharge is listed separately. Please let us know if you need backup.\n\n> AP desk: Please include the PO reference with your invoice.\n",
+        "audit_status": "written",
+        "ingestion": {
+          "sources": [
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/wrong_vendor.eml",
+              "sha256": "9617b6479025b93d673294d8a8848c26da1503e61c79874beba8f16316328253",
+              "format": "eml",
+              "method": "mime_plaintext",
+              "subject": "Invoice INV-7204 for PO-4821",
+              "attachment_count": 1,
+              "text": "Invoice INV-7204 for PO-4821\nHello AP team,\nPlease review the attached invoice INV-7204 for PO-4821.\nThe fuel surcharge is listed separately. Please let us know if you need backup.\n\n> AP desk: Please include the PO reference with your invoice.\n"
+            },
+            {
+              "file": "/Users/zimoshan/liquid_ai/part2/artifacts/multiformat/wrong_vendor.eml#attachment",
+              "sha256": "e399a57f64f6540ae2501d643febba0d5b76ecd9317c6cc2a0b16b1ea225e9a2",
+              "format": "pdf",
+              "pages": [
+                {
+                  "method": "pdf_text",
+                  "page": 1
+                }
+              ],
+              "text": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: Harbor Line Haul\n\nInvoice number: INV-7204\n\nPO: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nTerms: Net 30\n\n\n\n\n\n\n\n  DESCRIPTION                                                                                   CHARGE (USD)\n\n\n  1. Line haul                                                                                        11,700.00\n\n  2. Fuel surcharge                                                                                      300.00\n\n\n  Total due: USD 12,000.00\n\n\n\n\n\nPlease reference the invoice and PO when requesting charge backup.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSYNTHETIC DEMO DOCUMENT | No payment or remittance instructions                                           Page 1 of 1",
+              "attachment_name": "wrong_vendor.pdf"
+            }
+          ],
+          "review_required": false,
+          "latency_seconds": 2.579,
+          "benchmark_method": "lfm"
+        }
+      }
+    }
+  ],
+  "notes": "Format variants are paired replicas, not independent samples. No production ROI or superiority claim.",
+  "summary": {
+    "lfm": {
+      "documents": 4,
+      "case_groups": 4,
+      "five_fields_exact": 4,
+      "field_documents": 4,
+      "route_correct": 4,
+      "proposal_count": 2,
+      "incorrect_proposals": 0,
+      "median_pipeline_seconds": 48.591,
+      "field_exact_counts": {
+        "po_number": 4,
+        "vendor_name": 4,
+        "invoice_number": 4,
+        "invoice_amount": 4,
+        "currency": 4
+      },
+      "by_format": {
+        "eml": {
+          "documents": 1,
+          "route_correct": 1
+        },
+        "pdf": {
+          "documents": 1,
+          "route_correct": 1
+        },
+        "png": {
+          "documents": 1,
+          "route_correct": 1
+        },
+        "scan_pdf": {
+          "documents": 1,
+          "route_correct": 1
+        }
+      }
+    },
+    "rules": {
+      "documents": 4,
+      "case_groups": 4,
+      "five_fields_exact": 4,
+      "field_documents": 4,
+      "route_correct": 4,
+      "proposal_count": 2,
+      "incorrect_proposals": 0,
+      "median_pipeline_seconds": 0.973,
+      "field_exact_counts": {
+        "po_number": 4,
+        "vendor_name": 4,
+        "invoice_number": 4,
+        "invoice_amount": 4,
+        "currency": 4
+      },
+      "by_format": {
+        "eml": {
+          "documents": 1,
+          "route_correct": 1
+        },
+        "pdf": {
+          "documents": 1,
+          "route_correct": 1
+        },
+        "png": {
+          "documents": 1,
+          "route_correct": 1
+        },
+        "scan_pdf": {
+          "documents": 1,
+          "route_correct": 1
+        }
+      }
+    }
+  }
+}
