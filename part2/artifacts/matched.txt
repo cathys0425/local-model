@@ -1,0 +1,9 @@
+CARRIER INVOICE
+Vendor: ABC Logistics
+Invoice number: INV-12000
+PO: PO-4821
+Currency: USD
+
+Line items
+1. Linehaul                          12,000.00
+Total due: USD 12,000.00

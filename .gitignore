@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+part2/audit/
+part2/.bin/
+.DS_Store

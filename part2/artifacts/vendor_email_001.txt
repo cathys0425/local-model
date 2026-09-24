@@ -1,0 +1,12 @@
+From: billing@abclogistics.example
+To: ap@northline.example
+Subject: INV-92381 / PO-4821
+
+Hello AP team,
+
+Invoice INV-92381 is for load PO-4821.
+
+The additional $450 is a fuel surcharge. Please pay the full $12,450.
+
+Thanks,
+ABC Logistics Billing
