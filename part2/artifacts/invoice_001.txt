@@ -3,11 +3,18 @@ Invoice number: INV-92381
 PO: PO-4821
 Date: 2026-09-04
 Bill to: Northline Freight Brokerage
+Load ID: LD-884219
+BOL: BOL-73001
+Lane: Chicago, IL to Dallas, TX
 
-Line items
-1. Line haul                         12,000.00
-2. Fuel surcharge                       450.00
-                                 -------------
-Total due                          USD 12,450.00
+Item description                         Qty / basis                Extended USD
+1. Linehaul                              2 loads                       8,600.00
+2. Fuel surcharge                        2 loads                       1,720.00
+3. Detention                             2.0 hours                       450.00
+4. Lumper service                        1 stop                          825.00
+5. Tolls and scale fees                  1 route                         780.00
+                                                                        ------------
+Total due                                               USD             12,375.00
 
-Please remit full amount.
+Payment terms: Net 30
+Please remit the full invoice amount. Supporting receipts are available on request.

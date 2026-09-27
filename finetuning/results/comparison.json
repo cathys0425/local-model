@@ -1,0 +1,36 @@
+{
+  "scope": "One sequential paired synthetic experiment, not production or isolated latency benchmark",
+  "notes": [
+    "Original llama-server was stopped during early base evaluation to reduce memory pressure.",
+    "Machine memory pressure and background activity varied; timings do not establish causal or stable speedup.",
+    "No prompt-only short-output ablation, broad document test, or general capability regression was run.",
+    "Another llama-server process was present at cleanup; exclusive GPU use was not assured. The redundant restoration process created by this experiment was stopped."
+  ],
+  "methods": {
+    "base": {
+      "fields_exact": 24,
+      "all_exact": 24,
+      "validated": 24,
+      "route_correct": 24,
+      "proposal": 24,
+      "incorrect_proposal": 0,
+      "documents": 24,
+      "median_seconds": 43.944,
+      "median_generation_tokens": 718.5,
+      "report_sha256": "11f140822c0f6c7aa0a97478833d9ff488d33ef9ec6394cf65db5bd52a9ddb2d"
+    },
+    "lora": {
+      "fields_exact": 24,
+      "all_exact": 24,
+      "validated": 24,
+      "route_correct": 24,
+      "proposal": 24,
+      "incorrect_proposal": 0,
+      "documents": 24,
+      "median_seconds": 20.694,
+      "median_generation_tokens": 79.0,
+      "report_sha256": "e079774b68e7bddd5de9f524ad2570c66d29bd4a0dd9a37ddd0dda30048884f0"
+    }
+  },
+  "median_token_reduction_percent": 89.0
+}

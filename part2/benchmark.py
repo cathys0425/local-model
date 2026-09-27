@@ -39,10 +39,12 @@ def rules_extract(client, invoice_text, email_text="", trace=None):
     for line in invoice_text.splitlines():
         if TOTAL_RE.search(line):
             continue
-        match = re.match(r"^\s*(?:\d+[.)]\s+)?([A-Za-z][^\n]*?)\s{2,}([\d,]+\.\d{2})\s*$", line)
+        match = re.match(r"^\s*(?:\d+[.)]\s+)?(.+?)\s+(?:USD\s*)?\$?([\d,]+\.\d{2})\s*$", line, re.I)
         if match:
-            fields["line_items"].append({"description": match[1].strip(),
-                                         "amount": str(money(match[2].replace(",", "")))})
+            description = match[1].strip(" |\t")
+            if description and re.search(r"[A-Za-z]", description):
+                fields["line_items"].append({"description": description,
+                                             "amount": str(money(match[2].replace(",", "")))})
     errors = validate_extraction(fields, invoice_text, email_text)
     if errors:
         trace["validation_errors"] = errors
@@ -58,6 +60,8 @@ def summarize(rows):
         eligible = [r for r in subset if r["gold_exception"] != "prompt_injection"]
         summary[method] = {"documents": len(subset), "case_groups": len({r["case_group"] for r in subset}),
             "five_fields_exact": sum(r["fields_exact"] for r in eligible), "field_documents": len(eligible),
+            "line_item_amounts_exact": sum(r["line_items_exact"] for r in eligible),
+            "line_item_documents": len(eligible),
             "route_correct": sum(r["route_correct"] for r in subset),
             "proposal_count": sum(r["proposal"] for r in subset),
             "incorrect_proposals": sum(r["proposal"] and (not r["route_correct"] or not r["fields_exact"]) for r in subset),
@@ -114,14 +118,16 @@ def main():
                 packet = agent.resolve_invoice(invoice, email_text=email, ingestion=dict(ingestion, benchmark_method=method),
                                                input_error=ingestion_error, generate_brief=False)
             elapsed = time.monotonic() - start
-            fields = {key: packet["extraction"].get(key) == value for key, value in record["gold"].items()}
+            fields = {key: packet["extraction"].get(key) == record["gold"][key] for key in FIELDS}
+            line_items_exact = ([item.get("amount") for item in packet["extraction"].get("line_items", [])]
+                                == record["gold"].get("line_item_amounts", []))
             decision = packet["disposition"]
             route = (packet["status"] == record["status"] and decision["exception_type"] == record["exception"]
                      and decision["recommended_action"] == record["action"] and packet["audit_status"] == "written"
                      and packet["auto_post"] is False)
             rows.append({"id": record["id"], "case_group": record["case_group"], "format": record["format"],
                          "method": method, "gold_exception": record["exception"], "fields_exact": all(fields.values()),
-                         "field_matches": fields, "route_correct": route,
+                         "field_matches": fields, "line_items_exact": line_items_exact, "route_correct": route,
                          "proposal": packet["status"] == "HUMAN_APPROVAL_REQUIRED",
                          "pipeline_seconds": round(elapsed + ingest_seconds, 3), "ingestion_seconds": round(ingest_seconds, 3),
                          "processing_seconds": round(elapsed, 3), "packet": packet})

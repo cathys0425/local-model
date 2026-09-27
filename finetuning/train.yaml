@@ -1,0 +1,21 @@
+model: finetuning/models/LFM2.5-2.6B-MLX/4bit
+train: true
+fine_tune_type: lora
+data: finetuning/data
+seed: 42
+num_layers: 4
+batch_size: 1
+iters: 60
+val_batches: 4
+learning_rate: 0.0001
+steps_per_report: 5
+steps_per_eval: 30
+save_every: 30
+adapter_path: finetuning/adapters/invoice
+max_seq_length: 1536
+grad_checkpoint: true
+mask_prompt: true
+lora_parameters:
+  rank: 8
+  dropout: 0.0
+  scale: 16.0

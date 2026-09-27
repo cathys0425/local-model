@@ -11,6 +11,7 @@ from unittest.mock import patch
 import agent
 import backends as b
 import run_mvp
+from benchmark import rules_extract
 from validation import validate_extraction
 
 
@@ -73,7 +74,8 @@ class AgentTests(unittest.TestCase):
 
     def test_tolerance_boundaries(self):
         for amount, expected in [('12100.00', 'matched'), ('12100.01', 'amount_mismatch'),
-                                 ('11900.00', 'matched'), ('11899.99', 'underbilling')]:
+                                 ('11900.00', 'matched'), ('11899.99', 'underbilling'),
+                                 ('12072.50', 'matched'), ('11935.60', 'matched')]:
             with self.subTest(amount=amount):
                 self.assertEqual(self.resolve(*fixture(amount))['disposition']['exception_type'], expected)
 
@@ -89,6 +91,74 @@ class AgentTests(unittest.TestCase):
                 text, fields = fixture()
                 fields['invoice_amount'] = amount
                 self.assert_review(self.resolve(text, fields), 'extraction_failure')
+
+    def test_signed_source_amounts_cannot_support_positive_proposal(self):
+        for signed in ['(12000.00)', '($12,000.00)', '(USD 12000.00)',
+                       '12000.00-', '12000.00−', '−12000.00', '- 12000.00']:
+            with self.subTest(signed=signed):
+                text, fields = fixture()
+                fields.pop('evidence')
+                for item in fields['line_items']:
+                    item.pop('evidence')
+                with patch.object(agent, 'lookup_purchase_order') as lookup:
+                    self.assert_review(self.resolve(text.replace('12000.00', signed), fields),
+                                       'extraction_failure')
+                    lookup.assert_not_called()
+
+    def test_overcharge_fixture_separator_is_not_a_negative_amount(self):
+        text = run_mvp.CASES['amount_mismatch']['file'].read_text()
+        fields = dict(
+            po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-1001',
+            invoice_amount='12375.00', currency='USD',
+            line_items=[dict(description='Linehaul', amount='8600.00'),
+                        dict(description='Fuel surcharge', amount='1720.00'),
+                        dict(description='Detention', amount='450.00'),
+                        dict(description='Lumper service', amount='825.00'),
+                        dict(description='Tolls and scale fees', amount='780.00')],
+        )
+        packet = self.resolve(text, fields)
+        self.assertEqual(packet['disposition']['exception_type'], 'amount_mismatch')
+        self.assertEqual(packet['disposition']['recommended_action'], 'short_pay')
+
+    def test_richer_text_fixtures_match_gold_and_policy(self):
+        for name, spec in run_mvp.CASES.items():
+            if spec['expect_injection']:
+                continue
+            with self.subTest(case=name):
+                text = spec['file'].read_text()
+                fields, _trace = rules_extract(None, text)
+                packet = self.resolve(text, fields)
+                with redirect_stdout(io.StringIO()):
+                    self.assertTrue(run_mvp.evaluate(name, packet, spec))
+
+    def test_packet_summary_is_scannable_and_verbose_keeps_details(self):
+        packet = self.resolve(*fixture('12450.00', lines=[('Linehaul', '12000.00'), ('Fuel', '450.00')]))
+        output = io.StringIO()
+        with redirect_stdout(output):
+            run_mvp.print_packet(packet)
+        summary = output.getvalue()
+        self.assertIn('Decision: HUMAN_APPROVAL_REQUIRED | amount_mismatch | short_pay', summary)
+        self.assertIn('Variance (invoice - PO): 450.00 USD', summary)
+        self.assertIn('Auto-post: no', summary)
+        self.assertNotIn('"po_found"', summary)
+        output = io.StringIO()
+        with redirect_stdout(output):
+            run_mvp.print_packet(packet, verbose=True)
+        self.assertIn('"validation_errors": []', output.getvalue())
+
+    def test_signed_email_amount_requires_review(self):
+        self.assert_review(self.resolve(email_text='Credit adjustment: (USD 12000.00)'),
+                           'extraction_failure')
+
+    def test_lowercase_po_matches_canonical_backend_identifier(self):
+        packet = self.resolve(*fixture(po='po-4821'))
+        self.assertEqual(packet['disposition']['exception_type'], 'matched')
+        self.assertEqual(packet['extraction']['po_number'], 'po-4821')
+
+    def test_different_backend_po_still_rejected(self):
+        record = dict(b.PURCHASE_ORDERS['PO-4821'], po_number='PO-5502')
+        with patch.object(agent, 'lookup_purchase_order', return_value=record):
+            self.assert_review(self.resolve(), 'backend_failure')
 
     def test_missing_and_wrong_field_types(self):
         for key in ['po_number', 'vendor_name', 'invoice_number', 'currency']:
@@ -195,6 +265,23 @@ class AgentTests(unittest.TestCase):
         self.assertEqual(p['extract_trace']['attempts'], 2)
         self.assertEqual(p['status'], 'HUMAN_APPROVAL_REQUIRED')
 
+    def test_repair_trace_includes_both_request_durations(self):
+        text, fields = fixture()
+        client = fake_client([response(raw='not json'), response(fields)])
+        with patch.object(agent.time, 'monotonic', side_effect=[10, 12, 15, 18]):
+            packet = agent.resolve_invoice(text, client=client, generate_brief=False)
+        self.assertEqual(packet['extract_trace']['request_latencies_seconds'], [2.0, 3.0])
+        self.assertEqual(packet['extract_trace']['latency_seconds'], 5.0)
+        self.assertEqual(packet['status'], 'HUMAN_APPROVAL_REQUIRED')
+
+    def test_failed_request_duration_is_recorded(self):
+        client = fake_client([ConnectionError('offline')])
+        with patch.object(agent.time, 'monotonic', side_effect=[10, 14]):
+            packet = agent.resolve_invoice(fixture()[0], client=client, generate_brief=False)
+        self.assert_review(packet, 'extraction_failure')
+        self.assertEqual(packet['extract_trace']['request_latencies_seconds'], [4.0])
+        self.assertEqual(packet['extract_trace']['latency_seconds'], 4.0)
+
     def test_strict_json_and_fences(self):
         self.assertEqual(agent.parse_json_object('```json\n{"a":1}\n```'), {'a':1})
         for raw in ['{"invoice_amount":1.2e4, BROKEN}', '{"a":1,}', '{"a":1,"a":2}', '{"a":NaN}', '[]']:
@@ -229,6 +316,22 @@ class AgentTests(unittest.TestCase):
         p=agent.resolve_invoice(fixture()[0],client=fake_client([ConnectionError('offline')]))
         with redirect_stdout(io.StringIO()):
             self.assertFalse(run_mvp.evaluate('matched',p,run_mvp.CASES['matched']))
+
+    def test_fixture_eval_checks_every_line_amount(self):
+        lines = [('Linehaul', '8600.00'), ('Fuel surcharge', '1720.00'),
+                 ('Detention', '450.00'), ('Lumper service', '825.00'), ('Tolls', '780.00')]
+        packet = self.resolve(*fixture('12375.00', lines=lines))
+        spec = {
+            'expect_exception_type': 'amount_mismatch', 'expect_action': 'short_pay',
+            'expect_injection': False, 'expect_status': 'HUMAN_APPROVAL_REQUIRED',
+            'expect_amount': '12375.00',
+            'expect_line_amounts': ['8600.00', '1720.00', '450.00', '825.00', '780.00'],
+            'expect_delta': '375.00',
+        }
+        with redirect_stdout(io.StringIO()):
+            self.assertTrue(run_mvp.evaluate('amount_mismatch', packet, spec))
+            packet['extraction']['line_items'][2]['amount'] = '451.00'
+            self.assertFalse(run_mvp.evaluate('amount_mismatch', packet, spec))
 
     def test_python_locates_evidence_without_filling_facts(self):
         text, fields = fixture()

@@ -1,0 +1,483 @@
+{
+  "method": "lora",
+  "model": "/Users/zimoshan/liquid_ai/finetuning/models/LFM2.5-2.6B-MLX/4bit",
+  "revision": "b41f2b65685e95418f1ac809bb022d4f79e1ab27",
+  "platform": "macOS-26.3-arm64-arm-64bit",
+  "adapter_sha256": "866d61023a71ff1dedde0c22f86f7f903d52f8eb35c5a321a9ad1e9ccefcce2d",
+  "test_sha256": "2653d922fc62e9b05216f30e713ecf8d4663ec979279189c3b298a2be5c94345",
+  "protocol": {
+    "temperature": 0,
+    "max_tokens": 1200,
+    "attempts": 1,
+    "brief": false,
+    "scope": "synthetic held-out extraction and downstream mock policy; no OCR"
+  },
+  "rows": [
+    {
+      "id": "test-000",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 6.947,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30000', invoice_amount=12000, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 0}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-001",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 10.626,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30001', invoice_amount=8750, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 450}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-002",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 9.298,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30002', invoice_amount=12100, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 100}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-003",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 9.132,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30003', invoice_amount=8475, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 175}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-004",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 7.255,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30004', invoice_amount=12000, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 0}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-005",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 11.77,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30005', invoice_amount=8750, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 450}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-006",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 15.794,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30006', invoice_amount=12100, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 100}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-007",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 21.739,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30007', invoice_amount=8475, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 175}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-008",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 16.019,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30008', invoice_amount=12000, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 0}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-009",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 17.569,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30009', invoice_amount=8750, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 450}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-010",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 14.782,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30010', invoice_amount=12100, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 100}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-011",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 16.05,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30011', invoice_amount=8475, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 175}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-012",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 25.357,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30012', invoice_amount=12000, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 0}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-013",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 106.365,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30013', invoice_amount=8750, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 450}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-014",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 22.524,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30014', invoice_amount=12100, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 100}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-015",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 24.907,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30015', invoice_amount=8475, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 175}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-016",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 21.21,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30016', invoice_amount=12000, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 0}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-017",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 23.281,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30017', invoice_amount=8750, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 450}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-018",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 26.627,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30018', invoice_amount=12100, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 100}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-019",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 20.179,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30019', invoice_amount=8475, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 175}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-020",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 41.743,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30020', invoice_amount=12000, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 0}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-021",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 35.746,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30021', invoice_amount=8750, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 450}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-022",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "matched",
+        "approve_match"
+      ],
+      "seconds": 30.015,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-4821', vendor_name='ABC Logistics', invoice_number='INV-30022', invoice_amount=12100, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 12000}, {\"description\": \"Fuel surcharge\", \"amount\": 100}])]<|tool_call_end|>",
+      "generation_tokens": 78,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    },
+    {
+      "id": "test-023",
+      "fields_exact": true,
+      "all_exact": true,
+      "validated": true,
+      "route_correct": true,
+      "proposal": true,
+      "incorrect_proposal": false,
+      "validation_errors": [],
+      "route": [
+        "amount_mismatch",
+        "short_pay"
+      ],
+      "seconds": 28.933,
+      "text": "</think><|tool_call_start|>[submit_extracted_fields(po_number='PO-5502', vendor_name='Harbor Line Haul', invoice_number='INV-30023', invoice_amount=8475, currency='USD', line_items=[{\"description\": \"Line haul\", \"amount\": 8300}, {\"description\": \"Fuel surcharge\", \"amount\": 175}])]<|tool_call_end|>",
+      "generation_tokens": 80,
+      "peak_memory_gb": 2.456076922,
+      "finish_reason": "stop"
+    }
+  ],
+  "summary": {
+    "fields_exact": 24,
+    "all_exact": 24,
+    "validated": 24,
+    "route_correct": 24,
+    "proposal": 24,
+    "incorrect_proposal": 0,
+    "documents": 24,
+    "median_seconds": 20.694
+  }
+}

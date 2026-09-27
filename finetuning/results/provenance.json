@@ -1,0 +1,17 @@
+{
+  "model_repo": "LiquidAI/LFM2.5-2.6B-MLX",
+  "revision": "b41f2b65685e95418f1ac809bb022d4f79e1ab27",
+  "variant": "4bit",
+  "platform": "macOS-26.3-arm64-arm-64bit",
+  "python": "3.11.2",
+  "files": {
+    "models/LFM2.5-2.6B-MLX/4bit/model.safetensors": "ef350b75815752f8bff8c064c9fc8bd8b5709577d72943436852013d2bcd4691",
+    "models/LFM2.5-2.6B-MLX/4bit/config.json": "774dec99dca224214d464554ca34903491e8c3f386978cf0bfc55d825d860e4b",
+    "models/LFM2.5-2.6B-MLX/4bit/chat_template.jinja": "ea663864491de7ade391839479860ca95541f892f72665c73251fbd4643b1bef",
+    "train.yaml": "9051064be583eac84cb139c0346777bdde64cbd3f8a474448b83a5e426917a53",
+    "data/manifest.json": "65db7efcb50d8d0ceeb0793dad315a4b6c50e69d9426d1a55f98a87823d0d9d7",
+    "requirements-lock.txt": "ed71680502c08b1244f9bb5d4ac69ed19dfd098a777cd88c2d2c540541388b34",
+    "adapters/invoice/adapters.safetensors": "866d61023a71ff1dedde0c22f86f7f903d52f8eb35c5a321a9ad1e9ccefcce2d",
+    "adapters/invoice/adapter_config.json": "baba8bf553a455c6d488728ea04ca26652ec767eb159b0cf3e76802898854450"
+  }
+}

@@ -1,15 +1,25 @@
-INVOICE
+HARBOR LINE HAUL - CARRIER INVOICE
 From: Harbor Line Haul
 Invoice number: INV-2044
-Date: Sept 8, 2026
+Invoice date: 2026-09-08
+Service date: 2026-09-06
+Load ID: LD-441908
+BOL: BOL-73002
 
-Bill To
-Northline Freight Brokerage
+Bill to: Northline Freight Brokerage
+Remit to: Harbor Line Haul
+Lane: Newark, NJ to Atlanta, GA
+Equipment: 53' dry van
 
 Reference / PO: PO-9999
-Load: Newark to Atlanta, dry van
 
-Total charges: $8,300.00 USD
+Charge description                         Qty / basis                Extended USD
+1. Linehaul                                1 load                       6,500.00
+2. Fuel surcharge                          1 load                       1,300.00
+3. Detention                               1.5 hours                      425.00
+4. Lumper service                          1 stop                          950.00
+5. Tolls and scale fees                    1 route                         450.40
+																		------------
+Total charges                                            USD             9,625.40
 
-Please pay to Harbor Line Haul, Net 21.
-If you have questions call dispatch, the PO should be on the rate con.
+Please pay Harbor Line Haul under Net 21 terms. The signed rate confirmation can be resent if needed.

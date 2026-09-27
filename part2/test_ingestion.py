@@ -17,15 +17,16 @@ class IngestionTests(unittest.TestCase):
     def test_native_pdf_facts_are_read_from_file(self):
         text, source = read_document(ROOT / "artifacts/multiformat/overcharge.pdf")
         fields, trace = rules_extract(None, text)
-        self.assertEqual(fields["invoice_amount"], "12450.00")
-        self.assertEqual(len(fields["line_items"]), 2)
+        self.assertEqual(fields["invoice_amount"], "12375.00")
+        self.assertEqual(len(fields["line_items"]), 5)
         self.assertEqual(source["pages"][0]["method"], "pdf_text")
         self.assertEqual(len(source["sha256"]), 64)
 
     def test_email_attachment_and_body_are_both_used(self):
         invoice, email, ingestion = load_inputs(ROOT / "artifacts/multiformat/overcharge.eml")
-        self.assertIn("Total due", invoice)
+        self.assertRegex(invoice, r"(?i)total due")
         self.assertIn("fuel surcharge", email)
+        self.assertIn("accessorial charges", email)
         self.assertEqual(len(ingestion["sources"]), 2)
 
     def test_multiple_attachments_fail_closed(self):

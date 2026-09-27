@@ -1,237 +1,212 @@
-# Local invoice exception resolution
+# Demo
 
-Part 2 of the Liquid AI Solutions Architect take-home: a bounded workflow on **LFM2.5-2.6B** that prepares invoice-exception decisions for a fictional mid-market freight broker, Northline Freight Brokerage.
+This project explores Liquid AI's LFM2.5-2.6B through local inference, LoRA fine-tuning, and a human-reviewed invoice-processing demo. Model-based extraction is paired with deterministic validation, financial calculations, and policy checks.
 
-The workflow accepts an invoice document and optional vendor email, extracts candidate facts locally, checks them against the source and mock business records, and produces a packet a human can review. Python owns the lookups, arithmetic, policy and routing. The model has no payment or email-send capability.
+| Contents | Sections |
+|---|---|
+| Customer and value | [Project](#project) · [Value proposition](#value-proposition) |
+| Demo and controls | [Demo](#demo) · [Workflow](#workflow) |
+| Results and plan | [Evidence](#evidence) · [Next steps](#next-steps) |
+| Reference | [Repository map](#repository-map) · [Run](#run) |
 
-```text
-TXT / PDF / image / EML
-  → local document parsing or OCR
-  → LFM candidate extraction
-  → source validation
-  → mock PO, vendor and payment lookups
-  → Decimal reconciliation and policy
-  → human review packet, email draft and local audit
+## Project
+
+I chose carrier-invoice exceptions at a fictional mid-market freight broker. AP staff reconcile invoices with purchase orders, investigate mismatches, and prepare responses.
+
+**Design choice:** LFM2.5-2.6B interprets invoice language locally; deterministic code owns record access, money, policy, and routing. A human retains approval authority.
+
+| Illustrative queue | Example exception | System boundary |
+|---|---|---|
+| 15,000 invoices/month; 20% exceptions = 3,000 cases. At 8 minutes each and $45/hour: 400 hours and $18,000 monthly labor capacity | $12,375 invoice vs. $12,000 PO; $375 variance exceeds mock $100 tolerance | Proposes $12,000 pending approval and backup; does not decide whether the surcharge is contractually owed |
+
+These volumes, costs, and the proposed one-business-day initial disposition are assumptions for discovery, not customer measurements or an SLA.
+
+## Value proposition
+
+| Potential value | Demonstrated here | Still unproven |
+|---|---|---|
+| Local capability for sensitive or resource-constrained environments | LFM2.5-2.6B runs locally on both llama.cpp/GGUF and MLX; the MLX path loads a LoRA adapter | Production privacy controls, deployment cost, throughput, or savings |
+| Adaptation to a bounded task | Adapter completes tested invoice extraction and produces 89% fewer median tokens than base | Accuracy improvement, prompt-only advantage, or stable speedup |
+| Language flexibility alongside explicit controls | LFM proposes fields; Python validates, calculates, and routes | More useful coverage than rules on real, varied invoices |
+
+## Demo
+
+The recommended live example uses the **fine-tuned MLX adapter** on a native-text invoice PDF:
+
+```bash
+finetuning/.venv/bin/python finetuning/run_demo.py \
+  --invoice part2/artifacts/multiformat/overcharge.pdf
 ```
 
-## Where to start
+For presentation, run only the command above from the repository root. It uses the fine-tuned local model and the MLX runtime; you do not need to start a model server or run any setup command in another terminal. The PDF path is the invoice being demonstrated. The program prints the extracted details, checks, and proposed human-review outcome.
 
-This README is for someone reviewing or running the repository. [PRESENTATION_CONTENT.md](PRESENTATION_CONTENT.md) contains the customer story, assumptions, Liquid rationale, one-page architecture, full validation results, failure history and next steps, following the six “Bring to the session” requirements. It also contains the consolidated multi-format guidance and results.
+The other model and fixture commands are for optional comparison or testing, not needed for the presentation. A [saved adapter run](finetuning/results/demo.log) is prior evidence, not a live result. The [model-exploration write-up](part1/part1%20write%20up.pdf) records an earlier local Q4_K_M GGUF experiment.
 
-For a quick review, run the PDF example below, inspect its source and packet, then read [agent.py](part2/agent.py) and [validation.py](part2/validation.py). For the evidence behind the claims, inspect the saved [paired benchmark](review/multiformat-paired.json) and [test output](review/multiformat-tests.log).
+### Reading output
 
-`part1/tool_test.py` is a separate earlier tool-calling experiment. It is not required to run Part 2. Files in `review/` document recorded executions and historical investigations; some older probes target the pre-fix API. Use the current tests and commands below for verification.
+The terminal output leads with the proposed disposition, then shows the extracted facts, arithmetic, and control checks:
 
-## Prerequisites
+```text
+Decision: HUMAN_APPROVAL_REQUIRED | amount_mismatch | short_pay
+Invoice total: 12375.00 USD
+PO total: 12000.00 USD
+Variance (invoice - PO): 375.00 USD
+Tolerance: 100.00 USD
+Line-item total: 12375.00 USD
+Auto-post: no
+```
 
-Run commands from the repository root, in Cursor's integrated terminal or any terminal.
+`HUMAN_APPROVAL_REQUIRED` means a checked proposal is ready for a person. `HUMAN_REVIEW_REQUIRED` means an exception or failure needs investigation. The packet always reports `Auto-post: no`; it also includes the reason, clerk brief, and email draft. `--verbose` adds full extraction, lookup, and mismatch details. In fixture mode, `[PASS]` means the expected extraction and routing labels matched; it is not a production accuracy estimate.
 
-| Component | Needed for |
+As a reliability illustration, six independent steps that are each 95% correct yield `0.95^6`, or about 73.5% end-to-end success. This is not a measured reliability estimate; the implementation reduces probabilistic steps with source checks, deterministic policy, bounded repair, and human review.
+
+`--no-brief` skips only optional prose composition; it still requires LFM extraction. Native-text PDFs need no optical character recognition (OCR) setup. OCR converts text in scanned pages or images into machine-readable text. On macOS, image and scanned-PDF intake uses Apple Vision plus Poppler's `pdftoppm`. From the repository root, install Poppler and compile the local helper:
+
+```bash
+brew install poppler
+mkdir -p part2/.bin
+clang -fobjc-arc -framework Foundation -framework Vision -framework CoreGraphics \
+  part2/ocr.m -o part2/.bin/local-ocr
+export POPPLER_BIN="$(brew --prefix poppler)/bin"
+```
+
+Keep `POPPLER_BIN` set in the shell used to run the demo, or add that Poppler bin directory to `PATH`. The helper is macOS-only; native-text PDFs do not invoke it.
+
+## Workflow
+
+The document path separates interpretation from financial authority:
+
+| Scenario | Expected outcome | Demonstrated control |
+|---|---|---|
+| Overcharge | `amount_mismatch / short_pay` | $375 variance and checked proposal beyond $100 tolerance |
+| Unknown PO | `unknown_po / request_information` | Missing record does not become an approval |
+| Wrong vendor | `vendor_mismatch / escalate` | Payee must agree with PO vendor |
+| Material underbilling | `underbilling / escalate` | Lower invoice is not used to recommend increasing payment |
+| Near-tolerance overage | `matched / approve_match` | +$72.50 is within the $100 tolerance |
+| Near-tolerance underage | `matched / approve_match` | -$64.40 is within the $100 tolerance |
+| Known injection | `prompt_injection / escalate` | Known attack is intercepted before extraction |
+| Matched invoice | `matched / approve_match` | Passing checks still require human approval |
+
+```mermaid
+flowchart LR
+  A["Invoice: TXT / PDF / image / EML"] --> B["Local parsing or OCR"]
+  B --> C["LFM candidate fields and charges"]
+  C --> D["Python source validation"]
+  D --> E["Mock PO, vendor, payment lookups"]
+  E --> F["Decimal reconciliation and policy"]
+  F --> G["Human-review packet, draft, audit"]
+  B -->|"Uncertain input"| R["Human review"]
+  C -->|"Invalid after one repair"| R
+  D -->|"Conflicting or unsupported facts"| R
+  E -->|"Lookup or policy failure"| R
+  F -->|"Mismatch or unsafe state"| R
+```
+
+| Stage | Owner | Output | Failure response |
+|---|---|---|---|
+| Intake | Local parser / Vision OCR | Text plus source/page/OCR provenance | Hold unsupported, oversized, ambiguous, or uncertain input |
+| Extraction | LFM | Candidate invoice fields and printed charges | Reject malformed/truncated output; allow one repair, then hold |
+| Source validation | Python | Supported values with source lines | Hold missing, conflicting, signed/unsupported, or ungrounded facts |
+| Record lookup | Python | PO, vendor policy, and paid state | Request information or escalate; invalid lookups require review |
+| Reconciliation | Python | Line total, invoice-vs-PO delta, tolerance, route | Deterministic review/approval-required status; never auto-post |
+| Handoff | Human + local audit | Rationale, reviewer options, draft, audit packet | Brief falls back to checked template; audit failure is surfaced |
+
+### Tool boundary
+
+In Part 2, LFM makes one structured `submit_extracted_fields` call to return candidate invoice fields and printed charges. That call does not access business systems or choose a payment action. Host Python validates facts against document evidence, calls the mock PO/vendor/paid-invoice lookups, computes amounts with `Decimal`, applies policy, and drafts the vendor email. The optional LFM clerk brief receives only approved sentences. Every proposed outcome remains subject to human approval; the demo captures no approval event and never posts payment.
+
+This is distinct from Part 1's isolated tool-calling experiment: there, LFM chooses `lookup_purchase_order` and supplies its argument, and Python executes the mock lookup. Part 1 demonstrates native model-directed tool selection; Part 2 deliberately narrows the model's tool to structured extraction so that Python owns lookups and decisions. See the [architecture one-pager](ARCHITECTURE.md).
+
+Local OCR is preprocessing for a text model, not a claim of multimodal perception. Missing facts and policy decisions remain with a person.
+
+### Decision tradeoffs
+
+| Decision | Current choice and reason | What could change it |
+|---|---|---|
+| Read documents | Use native PDF text where available; otherwise local OCR feeds the text model. This keeps the demonstrated inference path local. | A multimodal model is worth testing if it materially improves pixel-level extraction on representative scans without unacceptable deployment or privacy costs. |
+| Extract fields | Evaluate LFM for variable language; keep rules for stable, labeled document families. The current rules baseline is strong on this clean synthetic corpus. | Use LFM where a held-out business set shows better useful coverage at an acceptable error and operating cost. |
+| Adapt the model | Use LoRA to test compact task-specific extraction, not to teach payment policy. | Keep the adapter only if it beats base and prompt-only alternatives on permissioned, representative cases without increasing incorrect proposals. |
+| Decide payment action | Use deterministic policy and keep a human in control; never give the model payment authority. | No model result alone changes this boundary. |
+
+### Escalation recommendation
+
+Escalation to a larger model is **not implemented**. My recommendation is to keep it off by default and evaluate it only for ambiguity that language can resolve from the available evidence.
+
+| Design element | Proposed behavior |
 |---|---|
-| Python 3.11, as used in the recorded runs | Application, offline tests and evaluation |
-| Local `llama-server` and an LFM2.5-2.6B GGUF | Live LFM extraction and optional brief generation |
-| macOS with Command Line Tools | Compiling and running the Apple Vision OCR helper for images/scans |
-| Poppler's `pdftoppm` on `PATH`, or `POPPLER_BIN` configured | Scanned-PDF rasterization and fixture generation |
-| ReportLab from the development requirements | Regenerating the synthetic corpus only |
+| Trigger | Extraction remains ambiguous after one repair, or a supported multi-document narrative needs interpretation. Unsupported OCR, missing facts, vendor-master conflicts, or policy disagreements go to a person instead. |
+| Placement | A larger model acts as a peer candidate extractor, not a policy authority. It returns the same field contract; the same Python source validation, record checks, arithmetic, and human gate still apply. |
+| Capability boundary | It receives no payment or email-send tool and cannot bypass required checks. |
+| Cost and data | Measure added per-case cost and end-to-end latency. Confirm hosting, retention, and any external data transfer with the customer before enabling it. |
+| Evidence gate | Compare rules, base LFM, LoRA, and the larger model on independently labeled held-out cases. Track exact fields, useful coverage, incorrect proposals, escalation rate, latency, and total cost. Enable only if it improves the agreed outcome without breaching safety or data constraints. |
 
-The model weights, server executable, OCR binary and Poppler are not bundled in the repository. Native text PDFs and TXT files do not require the OCR helper or Poppler. The current image/scan path uses macOS Vision; a Linux/Windows OCR adapter is not implemented.
+The model ladder is conditional: rules for stable templates; a locally adapted LFM for language variation only where it adds measured value; and a larger model only for a validated long tail. Human review remains the fallback for missing evidence and business authority.
 
-### Install Python dependencies
+## Evidence
+
+| Evidence | Result | Interpretation |
+|---|---|---|
+| Local model exploration ([write-up](part1/part1%20write%20up.pdf), [tool code](part1/tool_test.py)) | LFM2.5-2.6B Q4_K_M GGUF on Apple M2/16 GB; short generation 43–46 tokens/s, long-context 25.3 tokens/s, process memory about 2.11–2.13 GB; mock tool loop 4.86s | Hands-on observations, not controlled benchmarks |
+| LoRA fine-tuning ([comparison](finetuning/results/comparison.json)) | 60 steps; 96 train / 16 validation / 24 held-out synthetic examples. Base and adapter both exact on 24/24; median tokens 718.5 to 79 (89% reduction) | Compact output with unchanged measured accuracy; no accuracy gain established |
+| Timing | Extraction/check median 43.94s base vs. 20.69s adapter, one sequential run under variable machine load | Not a causal or stable speedup; prompt-only shortening was not tested |
+| Expanded rules and LFM fixtures | The base-model root fixtures pass 8/8 labels with `part2/run_mvp.py --case all --no-brief`, including +$72.50 and -$64.40 within-tolerance cases; injection skips extraction. On the 32-record multi-format corpus, rules route 32/32; all 28 non-injection documents have exact five-field values and line-item amounts. | All eight scan PDFs route correctly; Apple Vision OCR yields exact fields and line-item amounts on 7/7 non-injection scans. See the [full rules report](review/multiformat-rules-full.json). Stable labels still favor rules; no real-world coverage, production accuracy, SLA, ROI, or model-superiority claim follows |
+| Failures that changed the design | A broker heading was initially confused with the carrier; malformed model output could obscure extraction failure; a signed-amount detector once matched a dashed separator | Source-backed payee validation, explicit review on invalid extraction, and line-bounded signed-amount detection now cover these regressions |
+
+### Assumptions revised during the build
+
+| Initial assumption | What testing showed | Revised design |
+|---|---|---|
+| The most prominent company name on an invoice identifies the payee. | Broker letterhead can differ from the carrier listed as the remittance recipient. | Treat payee as a source-backed fact; validate it against the invoice's `Remit to`, `Vendor`, or `From` evidence and hold conflicts or unsupported values for review. |
+| A malformed model response can be repaired or parsed loosely without changing the outcome. | Recovery can hide extraction failure or turn malformed content into unsupported facts. | Accept strict structured output, allow one bounded repair, and fail visibly to human review if validation still fails; do not salvage guessed commercial facts. |
+| A plausible amount string is safe to interpret wherever it appears. | Nearby separators and other document text can resemble signed amounts. | Parse amounts only in bounded, labeled source lines, validate the sign and supported currency/format, then do financial arithmetic deterministically with `Decimal`. |
+
+These are implementation assumptions learned from synthetic fixtures and targeted regressions, not claims that the same failure rates have been measured on production invoices.
+
+The format variants are related documents, not independent real-world cases. Raw outputs and training settings are in `finetuning/results/`, `finetuning/data/`, and `finetuning/train.yaml`; benchmark packets and run logs are in `review/`. `review/REVIEW.md` records historical review findings.
+
+The rules baseline succeeds partly because these generated invoices have stable labels and separated tabular schedules. The corpus covers eight business cases, 32 files, and three related layout variants across PDF, PNG, scanned PDF, and EML. The [full rules report](review/multiformat-rules-full.json) records this run against the current manifest, including its hash, per-document outcomes, and OCR provenance. The corpus tests integration and tolerance boundaries, not broad accuracy on independently collected business cases.
+
+## Next steps
+
+| Priority | Evaluation | Evidence needed |
+|---:|---|---|
+| 1 | Compare rules, base LFM, prompt-only compact output, and LoRA on permissioned real invoices split by vendor/layout | Independent labels and representative held-out cases |
+| 2 | Repeat performance measurements | Fixed hardware, warm-up, randomized order, end-to-end latency, utilization, and cost |
+| 3 | Run in AP shadow mode | Reviewer corrections, useful coverage, active handling time, and incorrect-proposal rate |
+| 4 | Evaluate OCR on degraded real documents | Pixel-level transcription review; ambiguous evidence remains a human hold |
+| 5 | Consider an approved larger model only for residual language ambiguity | Same evidence validation and human authority; no silent fallback or invented facts |
+
+The illustrative ROI scenario assumes 60% useful coverage and a reduction from 8 to 3 human minutes on covered cases, yielding 150 hours/month of released capacity. It is a pilot hypothesis, not measured savings. See `part2/roi.py` and `part2/pilot_measurements.csv`.
+
+## Repository map
+
+```text
+README.md                              This single technical guide
+part1/                                Local model exploration report and tool-call code
+part2/                                Invoice agent, fixtures, tests, ingestion, policy
+finetuning/                           MLX LoRA training, adapter demo, data and results
+review/                               Saved evaluations, traces, and historical review
+```
+
+| Area | Key files | Purpose |
+|---|---|---|
+| Model exploration | `part1/part1 write up.pdf`, `part1/tool_test.py` | Local model measurements and actual tool call |
+| Invoice workflow | `part2/run_mvp.py`, `part2/agent.py` | CLI and orchestration |
+| Safety/policy | `part2/validation.py`, `part2/backends.py` | Source checks, records, money and routing |
+| Ingestion | `part2/ingestion.py`, `part2/ocr.m` | PDF/email parsing and local macOS Vision OCR |
+| Fine-tuning | `finetuning/run_demo.py`, `finetuning/train.yaml` | Adapter demo and LoRA configuration |
+| Evaluation | `part2/test_agent.py`, `part2/test_ingestion.py`, `finetuning/results/` | Offline checks and recorded experiments |
+
+## Run
+
+Install the base workflow dependencies in `.venv` from the repo root:
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r part2/requirements.txt
+.venv/bin/python -m pip install -r part2/requirements.txt
+.venv/bin/python -m unittest discover -s part2 -p 'test_*.py' -v
 ```
 
-The runtime requirements pin `openai==3.13.0` and `pypdf==6.10.0`. The OpenAI SDK is an API client for the local server. No cloud API key is required, and the normal resolver has no cloud fallback.
+The MLX demo uses the separate `finetuning/.venv`, downloaded MLX-format model, and adapter. Setup/training commands and pinned dependencies are in `finetuning/requirements-lock.txt`, `finetuning/download_model.py`, and `finetuning/train.yaml`. The llama.cpp demo requires a locally installed server and GGUF. No cloud API key or remote inference fallback is used.
 
-### Start the local model
-
-Use your actual GGUF path in a separate terminal:
-
-```bash
-llama-server -m /absolute/path/to/LFM2.5-2.6B.gguf \
-  --alias lfm2.5-2.6b --host 127.0.0.1 --port 8080 --jinja
-```
-
-Check that the server is ready and advertises the expected alias:
-
-```bash
-curl --max-time 5 http://127.0.0.1:8080/health
-curl --max-time 5 http://127.0.0.1:8080/v1/models
-```
-
-`agent.py` uses `http://127.0.0.1:8080/v1` and model alias `lfm2.5-2.6b`. Each request has a 120-second timeout and no automatic transport retries. Invalid extraction gets at most one validation repair; a transport failure produces a review packet. Optional brief generation adds another request. These are request bounds, not a 120-second end-to-end guarantee.
-
-## Run the first example
-
-With the server running and the virtual environment active:
-
-```bash
-python part2/run_mvp.py \
-  --invoice part2/artifacts/multiformat/overcharge.pdf --no-brief
-```
-
-This native text PDF needs no OCR setup. Open the invoice beside the output: ABC Logistics requests **$12,450** against a **$12,000** PO. Its two charges add up, but the **$450** difference exceeds the mock **$100** tolerance.
-
-Expected important output:
-
-```text
-Status:       HUMAN_APPROVAL_REQUIRED
-Exception:    amount_mismatch
-Action:       short_pay
-Auto-post:    False
-Audit:        written
-```
-
-Also inspect `Extraction trace` for `status: ok`, the extracted invoice ID `INV-7201`, total `12450.00`, PO `PO-4821`, and mismatch `amount_delta: 450.00`. A plausible action alone is not evidence of correct extraction. The proposal is to pay the PO amount **pending human approval and variance backup**; it does not establish that the fuel surcharge is contractually invalid.
-
-`--no-brief` uses a deterministic clerk brief while retaining LFM extraction. Omit it to request optional LFM composition from approved sentences. The generated brief is constrained; invalid prose is replaced with the template and a visible fallback trace.
-
-The original invoice plus separate vendor-email example is also available:
-
-```bash
-python part2/run_mvp.py --invoice part2/artifacts/invoice_001.txt \
-  --email part2/artifacts/vendor_email_001.txt
-```
-
-## Run images, scanned PDFs and email attachments
-
-Compile the local OCR helper once on macOS:
-
-```bash
-mkdir -p part2/.bin
-clang -fno-modules -framework Foundation -framework Vision -framework CoreGraphics \
-  part2/ocr.m -o part2/.bin/local-ocr
-```
-
-For scanned PDFs, make `pdftoppm` available on `PATH`. If Poppler is installed elsewhere, set its bin directory for the terminal running the demo:
-
-```bash
-export POPPLER_BIN=/absolute/path/to/poppler/bin
-```
-
-These paths are examples to replace with your installation paths. No developer-specific Codex installation is required.
-
-```bash
-python part2/run_mvp.py --invoice part2/artifacts/multiformat/matched.png --no-brief
-python part2/run_mvp.py --invoice part2/artifacts/multiformat/unknown_scan.pdf --no-brief
-python part2/run_mvp.py --invoice part2/artifacts/multiformat/wrong_vendor.eml --no-brief
-python part2/run_mvp.py --invoice part2/artifacts/multiformat/injection.eml --no-brief
-```
-
-| File | Expected exception / action |
-|---|---|
-| `matched.png` | `matched / approve_match` |
-| `unknown_scan.pdf` | `unknown_po / request_information` |
-| `wrong_vendor.eml` | `vendor_mismatch / escalate` |
-| `injection.eml` | `prompt_injection / escalate`; extraction intentionally skipped |
-
-The EML examples contain one native PDF attachment and a plain-text email body. Passing the EML as `--invoice` reads both. A separate `--email` must accompany `--invoice`; an EML used as a companion email must not contain attachments. Email context can reveal conflicts but cannot replace invoice facts or authorize payment.
-
-To try an unseen document, pass its path to `--invoice`. Unsupported or ambiguous inputs should produce a review outcome; success is not guaranteed merely because the extension is supported.
-
-## Output and approval contract
-
-| Status | Meaning |
-|---|---|
-| `HUMAN_APPROVAL_REQUIRED` | A checked match or overbilling proposal is ready for a human decision |
-| `HUMAN_REVIEW_REQUIRED` | Missing/conflicting facts, policy concerns, suspicious content or operational failure need review |
-
-`approve_match` is a recommendation. `Human: approve, edit, escalate` lists intended choices; the CLI does not capture an approval event. `auto_post` remains false. The displayed `confidence` is a policy label, not a calibrated probability.
-
-Each resolution attempts to append a full packet to `part2/audit/packets.jsonl`. Packets include a UUID, UTC timestamp, fields/evidence, backend records, mismatch calculations, disposition, draft and traces. Successful custom-file ingestion adds source hashes, converted text and page/OCR details. Audit-write failure changes the returned outcome to review-required. The local JSONL file is not a production-grade tamper-proof audit store; its contents include document text.
-
-CLI exit codes are `1` for fixture-evaluation failure, `2` for custom-input operational failures, and `0` for a produced business proposal/review outcome. Always inspect the packet: exit `0` does not mean payment approval or successful extraction of every document.
-
-## Verify behavior and inspect the evidence
-
-Offline regression tests do not need a model server, OCR binary or Poppler; OCR/failure paths use controlled responses and checked-in native PDF/email fixtures:
-
-```bash
-python -m unittest discover -s part2 -p 'test_*.py' -v
-```
-
-Run the original five text fixtures against the real local model:
-
-```bash
-python part2/run_mvp.py --case all --no-brief
-```
-
-The multi-format benchmark shares conversion, source validation, mock records, policy and a template brief between candidates. It measures five critical fields, exact routing, proposal errors and pipeline time. Use new output filenames to preserve the recorded evidence:
-
-```bash
-# Complete corpus; no language-model server needed, but OCR/Poppler are required.
-python part2/benchmark.py --methods rules --output review/rerun-multiformat-rules.json
-
-# Four different cases spanning PDF, PNG, scanned PDF and EML.
-python part2/benchmark.py --methods rules lfm --limit 4 \
-  --output review/rerun-multiformat-paired.json
-```
-
-Remove `--limit 4` for a full paired run, budgeting for variable model latency. Appendix A of [PRESENTATION_CONTENT.md](PRESENTATION_CONTENT.md) documents the opt-in larger-model comparison. It requires an already-running local model; no larger model has been evaluated in the recorded results.
-
-| Recorded check | Result |
-|---|---|
-| Offline suite | 52 tests passed |
-| Complete rules corpus | 24/24 routes; all five fields exact on 20/20 eligible files |
-| Paired rules / LFM smoke set | Both 4/4 routes and five-field agreement |
-| Paired median pipeline time | Rules 0.973 seconds; LFM 48.591 seconds |
-
-The four injection variants intentionally skip extraction, explaining the 20-file field denominator. The corpus has **24 files but six business scenarios and three related template variants**. It contains clean synthetic rasters, not real camera photos or degraded scans. These results demonstrate integration and known-case behavior. They do not establish broad accuracy, production ROI, a latency SLA, or superiority over rules. The full rules evaluation overlapped part of the paired run; timing was not an isolated hardware experiment.
-
-Recorded evidence: [paired report](review/multiformat-paired.json), [full rules report](review/multiformat-rules.json), [offline test output](review/multiformat-tests.log), [email-attachment injection output](review/multiformat-cli-injection.log). The presentation explains the method, limitations and implications for model necessity.
-
-## Economics and fixture reproduction
-
-The ROI calculator reports an explicitly assumed capacity scenario, not observed savings:
-
-```bash
-python part2/roi.py --monthly-cost 1000 --setup-cost 10000
-```
-
-Its defaults yield 150 hours/month freed and $59,000 first-year net capacity value under the stated labor, coverage and cost assumptions. See Section 1 of the presentation for the calculation and sensitivity. [pilot_measurements.csv](part2/pilot_measurements.csv) is an empty template for collecting actual pilot data.
-
-To regenerate fixtures, install the development dependencies and ensure Poppler is available:
-
-```bash
-python -m pip install -r part2/requirements-dev.txt
-python part2/create_corpus.py
-```
-
-This rewrites the generated documents and [manifest](part2/artifacts/multiformat/manifest.json). Preserve the existing corpus when reproducing saved reports: the benchmark verifies document hashes, and regenerated MIME files can have different bytes. Do not treat old results as measurements of a changed corpus.
-
-## Source-code reading guide
-
-| File | Responsibility |
-|---|---|
-| [run_mvp.py](part2/run_mvp.py) | CLI, packet display and original fixture evaluation |
-| [ingestion.py](part2/ingestion.py), [ocr.m](part2/ocr.m) | Local MIME/PDF/OCR conversion, provenance and ingestion holds |
-| [agent.py](part2/agent.py) | Model calls, bounded repair, mandatory orchestration, policy routing, brief constraints and audit |
-| [validation.py](part2/validation.py) | Candidate types, source support, recognizable conflicts and printed-item completeness |
-| [backends.py](part2/backends.py) | Mock PO/vendor/payment data, Decimal reconciliation and deterministic email drafts |
-| [test_agent.py](part2/test_agent.py), [test_ingestion.py](part2/test_ingestion.py) | Regression and controlled failure checks |
-| [benchmark.py](part2/benchmark.py) | Generic rules extractor and paired evaluation using shared checks |
-| [create_corpus.py](part2/create_corpus.py) | Synthetic document layouts, labels and manifest generation |
-| [roi.py](part2/roi.py) | Parameterized capacity economics with explicit operating/setup costs |
-
-LFM emits the `submit_extracted_fields` tool call. Host Python then calls the mock PO/vendor/payment functions, computes mismatches and drafts the email. This is fixed orchestration with mandatory checks, not a model choosing arbitrary backend tools.
-
-## Supported boundaries and troubleshooting
-
-The financial contract supports USD policies, nonnegative cent amounts, labeled payees/totals, `PO-<digits>` and `INV-<alphanumeric>` references. It checks printed charges against the invoice total and the aggregate PO; full PO-line allocation, credits, tax inference and FX are not implemented. The $100 tolerance and short-pay action are mock customer policies.
-
-Ingestion limits are 10 MiB per document, five pages per PDF and 24,000 combined text characters. Encrypted PDFs, HTML-only email and multiple attachments are held. PDFs containing both native text and images are conservatively held even if they merely contain a logo. OCR confidence below 0.8 triggers review, but that threshold is uncalibrated: high confidence can still accompany incorrect or omitted text.
-
-| Symptom | What to check |
-|---|---|
-| Health check fails or packet reports `extraction_failure` | Server readiness, local endpoint, correct alias, tool-call/finish trace and validation errors |
-| Missing OCR helper | Run the `clang` command above on macOS; the generated binary is ignored by Git |
-| `pdftoppm` missing or rasterization fails | Poppler installation, executable path and `POPPLER_BIN` in the current terminal |
-| `ingestion_review` on a readable document | OCR confidence or mixed PDF layers may require visual source review |
-| `input_failure` | Extension, permissions, file/page limits, encryption, MIME body or attachment ambiguity |
-| `audit_failure` | Write access to `part2/audit/`; inspect the returned error before trusting persistence |
-| Slow run | Review trace timings; `--no-brief` skips optional composition, not extraction. Do not infer a total deadline from the per-request timeout |
-
-Source evidence checks converted text, not document authenticity or OCR fidelity against pixels. Known injection phrases are screened before model/backend calls, but phrase matching is not a universal defense. The central controls are constrained outputs, mandatory source/business checks, restricted capabilities and human authority.
+Inputs are capped at 10 MiB/document, five PDF pages, and 24,000 combined text characters. Current financial policy supports USD, nonnegative cent amounts, labeled payees/totals, and `PO-<digits>` / `INV-<alphanumeric>` identifiers. OCR is currently macOS Vision; this implementation is not cross-platform.

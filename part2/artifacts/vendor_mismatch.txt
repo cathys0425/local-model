@@ -1,13 +1,23 @@
-CARRIER INVOICE
+XYZ FREIGHT LLC - CARRIER INVOICE
 Vendor: XYZ Freight LLC
 Invoice: INV-3310
 Invoice date: 09/06/2026
+Load ID: LD-661302
+BOL: BOL-73003
 
-Customer: Northline Freight Brokerage
+Bill to: Northline Freight Brokerage
+Remit to: XYZ Freight LLC
 Purchase Order Number: PO-4821
-Description: FTL Chicago to Dallas
+Lane: Chicago, IL to Dallas, TX
+Equipment: 53' dry van
 
-TOTAL: 12,000.00 USD
+Charge description                         Qty / basis                Extended USD
+1. Linehaul                                1 load                       8,250.00
+2. Fuel surcharge                          1 load                       1,650.00
+3. Detention                               2.0 hours                      450.00
+4. Layover                                 1 night                      1,195.00
+5. Tolls and scale fees                    1 route                         600.00
+																		------------
+TOTAL                                                   USD             12,145.00
 
-Please remit to XYZ Freight LLC, not ABC Logistics.
-This load was double-brokered; pay the party named on this invoice.
+Please remit to XYZ Freight LLC, not ABC Logistics. This load was double-brokered; the named carrier requests payment.

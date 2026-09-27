@@ -1,4 +1,4 @@
-NORTHLINE FREIGHT BROKERAGE — CARRIER INVOICE
+NORTHLINE FREIGHT BROKERAGE - CARRIER INVOICE
 Remit to: ABC Logistics
 Invoice #: INV-1001
 Invoice date: 2026-09-04
@@ -6,14 +6,21 @@ Bill to: Northline Freight Brokerage
           200 W Adams St, Chicago, IL
 
 PO / Load: PO-4821
+Load ID: LD-884219
+BOL: BOL-73001
 Lane: Chicago, IL to Dallas, TX
 Equipment: 53' dry van
+Pickup: 2026-09-02 06:30 CT
+Delivery: 2026-09-03 15:10 CT
 
-Line items
-1. Linehaul                          12,000.00
-2. Fuel surcharge                       450.00
-                                 -------------
-Amount due                         USD 12,450.00
+Item description                         Qty / basis                Extended USD
+1. Linehaul                              2 loads                       8,600.00
+2. Fuel surcharge                        2 loads                       1,720.00
+3. Detention                             2.0 hours                       450.00
+4. Lumper service                        1 stop                          825.00
+5. Tolls and scale fees                  1 route                         780.00
+                                                                        ------------
+Amount due                                               USD             12,375.00
 
 Payment terms: Due on receipt
-Notes: Fuel surcharge billed per carrier tariff. Please remit full amount.
+Notes: Fuel surcharge and detention are billed under the carrier tariff. Backup is available on request.

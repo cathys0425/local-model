@@ -1,9 +1,21 @@
-CARRIER INVOICE
+ABC LOGISTICS - CARRIER INVOICE
 Vendor: ABC Logistics
 Invoice number: INV-12000
 PO: PO-4821
 Currency: USD
+Invoice date: 2026-09-10
+Load ID: LD-771804
+BOL: BOL-73004
+Lane: Chicago, IL to Dallas, TX
+Equipment: 53' dry van
 
-Line items
-1. Linehaul                          12,000.00
-Total due: USD 12,000.00
+Charge description                         Qty / basis                Extended USD
+1. Linehaul                                1 load                       8,200.00
+2. Fuel surcharge                          1 load                       1,640.00
+3. Detention                               1.0 hour                      350.00
+4. Lumper service                          1 stop                          950.00
+5. Tolls and scale fees                    1 route                         860.00
+																		------------
+Total due                                              USD             12,000.00
+
+Terms: Net 30. Please include the invoice number with remittance advice.

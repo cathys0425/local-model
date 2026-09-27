@@ -1,0 +1,21 @@
+ABC LOGISTICS - CARRIER INVOICE
+Remit to: ABC Logistics
+Invoice number: INV-1002
+PO reference: PO-4821
+Invoice date: 2026-09-12
+Load ID: LD-772119
+BOL: BOL-73006
+Lane: Chicago, IL to Dallas, TX
+Bill to: Northline Freight Brokerage
+
+Charge description                         Qty / basis       Rate USD       Extended USD
+1. Linehaul                                1 load            7,600.00          7,600.00
+2. Fuel surcharge                          1 load            1,520.00          1,520.00
+3. Stop-off                                1 stop               375.00            375.00
+4. Lumper service                          1 stop               655.00            655.00
+5. Tolls and scale fees                    1 route              950.00            950.00
+                                                                              ------------
+Total due                                                          USD         11,100.00
+
+Payment terms: Net 30
+Please confirm the final delivery receipt before remittance.

@@ -1,0 +1,28 @@
+Calling `python -m mlx_lm.lora...` directly is deprecated. Use `mlx_lm.lora...` or `python -m mlx_lm lora ...` instead.
+Loading configuration file finetuning/train.yaml
+Loading pretrained model
+Loading datasets
+Training
+Trainable parameters: 0.060% (1.630M/2697.199M)
+Starting training..., iters: 60
+Calculating loss...:   0%|          | 0/4 [00:00<?, ?it/s]Calculating loss...:  25%|██▌       | 1/4 [00:04<00:14,  4.79s/it]Calculating loss...:  50%|█████     | 2/4 [00:10<00:10,  5.38s/it]Calculating loss...:  75%|███████▌  | 3/4 [00:14<00:04,  4.94s/it]Calculating loss...: 100%|██████████| 4/4 [00:21<00:00,  5.48s/it]Calculating loss...: 100%|██████████| 4/4 [00:21<00:00,  5.33s/it]
+Iter 1: Val loss 0.605, Val took 21.423s
+Iter 5: Train loss 0.158, Learning Rate 1.000e-04, It/sec 0.091, Tokens/sec 7.697, Trained Tokens 425, Peak mem 2.903 GB
+Iter 10: Train loss 0.001, Learning Rate 1.000e-04, It/sec 0.119, Tokens/sec 10.074, Trained Tokens 850, Peak mem 2.903 GB
+Iter 15: Train loss 0.007, Learning Rate 1.000e-04, It/sec 0.149, Tokens/sec 12.635, Trained Tokens 1275, Peak mem 2.903 GB
+Iter 20: Train loss 0.017, Learning Rate 1.000e-04, It/sec 0.121, Tokens/sec 10.278, Trained Tokens 1700, Peak mem 2.903 GB
+Iter 25: Train loss 0.003, Learning Rate 1.000e-04, It/sec 0.131, Tokens/sec 11.149, Trained Tokens 2125, Peak mem 2.903 GB
+Calculating loss...:   0%|          | 0/4 [00:00<?, ?it/s]Calculating loss...:  25%|██▌       | 1/4 [00:05<00:15,  5.21s/it]Calculating loss...:  50%|█████     | 2/4 [00:10<00:10,  5.27s/it]Calculating loss...:  75%|███████▌  | 3/4 [00:15<00:04,  4.95s/it]Calculating loss...: 100%|██████████| 4/4 [00:20<00:00,  5.02s/it]Calculating loss...: 100%|██████████| 4/4 [00:20<00:00,  5.06s/it]
+Iter 30: Val loss 0.002, Val took 20.252s
+Iter 30: Train loss 0.001, Learning Rate 1.000e-04, It/sec 0.135, Tokens/sec 11.474, Trained Tokens 2550, Peak mem 2.903 GB
+Iter 30: Saved adapter weights to finetuning/adapters/invoice/adapters.safetensors and finetuning/adapters/invoice/0000030_adapters.safetensors.
+Iter 35: Train loss 0.003, Learning Rate 1.000e-04, It/sec 0.155, Tokens/sec 13.198, Trained Tokens 2975, Peak mem 2.903 GB
+Iter 40: Train loss 0.001, Learning Rate 1.000e-04, It/sec 0.123, Tokens/sec 10.491, Trained Tokens 3400, Peak mem 2.903 GB
+Iter 45: Train loss 0.001, Learning Rate 1.000e-04, It/sec 0.113, Tokens/sec 9.570, Trained Tokens 3825, Peak mem 2.903 GB
+Iter 50: Train loss 0.001, Learning Rate 1.000e-04, It/sec 0.138, Tokens/sec 11.748, Trained Tokens 4250, Peak mem 2.909 GB
+Iter 55: Train loss 0.004, Learning Rate 1.000e-04, It/sec 0.063, Tokens/sec 5.395, Trained Tokens 4675, Peak mem 2.909 GB
+Calculating loss...:   0%|          | 0/4 [00:00<?, ?it/s]Calculating loss...:  25%|██▌       | 1/4 [00:21<01:03, 21.11s/it]Calculating loss...:  50%|█████     | 2/4 [00:35<00:34, 17.08s/it]Calculating loss...:  75%|███████▌  | 3/4 [00:50<00:16, 16.10s/it]Calculating loss...: 100%|██████████| 4/4 [01:03<00:00, 15.00s/it]Calculating loss...: 100%|██████████| 4/4 [01:03<00:00, 15.91s/it]
+Iter 60: Val loss 0.006, Val took 63.818s
+Iter 60: Train loss 0.006, Learning Rate 1.000e-04, It/sec 0.015, Tokens/sec 1.269, Trained Tokens 5100, Peak mem 2.909 GB
+Iter 60: Saved adapter weights to finetuning/adapters/invoice/adapters.safetensors and finetuning/adapters/invoice/0000060_adapters.safetensors.
+Saved final weights to finetuning/adapters/invoice/adapters.safetensors.

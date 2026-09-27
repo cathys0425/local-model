@@ -1,0 +1,34 @@
+test-000 True True 166.664
+test-001 True True 43.376
+test-002 True True 71.068
+test-003 True True 32.852
+test-004 True True 46.101
+test-005 True True 27.536
+test-006 True True 69.449
+test-007 True True 31.46
+test-008 True True 50.995
+test-009 True True 32.891
+test-010 True True 52.353
+test-011 True True 35.077
+test-012 True True 42.003
+test-013 True True 29.856
+test-014 True True 64.396
+test-015 True True 47.355
+test-016 True True 49.177
+test-017 True True 24.658
+test-018 True True 58.348
+test-019 True True 39.355
+test-020 True True 51.747
+test-021 True True 33.898
+test-022 True True 44.513
+test-023 True True 31.766
+{
+  "fields_exact": 24,
+  "all_exact": 24,
+  "validated": 24,
+  "route_correct": 24,
+  "proposal": 24,
+  "incorrect_proposal": 0,
+  "documents": 24,
+  "median_seconds": 43.944
+}

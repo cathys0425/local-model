@@ -12,6 +12,14 @@ INVOICE_RE = re.compile(r"\bINV-[A-Z0-9]+(?:-[A-Z0-9]+)*\b", re.I)
 AMOUNT_RE = re.compile(r"(?<![\w.,+\-])(?:\d{1,3}(?:,\d{3})+|\d+)\.\d{2}(?![\w.,])")
 TOTAL_RE = re.compile(r"(?im)^\s*(?:amount due|total(?: due| charges)?)\s*:?\s*(.+)$")
 PAYEE_RE = re.compile(r"(?im)^\s*(?:remit to|vendor|from):\s*(.+)$")
+# Credits are outside the supported contract. Do not strip accounting signs
+# and then accept the remaining positive digits as source evidence.
+_MONEY_TOKEN = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?"
+_CURRENCY_TOKEN = r"(?:[A-Z]{3}[ \t]*|[$€£][ \t]*)?"
+SIGNED_MONEY_RE = re.compile(
+    rf"\([ \t]*{_CURRENCY_TOKEN}{_MONEY_TOKEN}[ \t]*\)"
+    rf"|(?<!\w)[−-][ \t]*{_CURRENCY_TOKEN}{_MONEY_TOKEN}(?![\w.,])"
+    rf"|(?<![\w.,]){_MONEY_TOKEN}[ \t]*[−-](?!\w)", re.I)
 
 
 def source_amounts(text: str) -> list:
@@ -86,6 +94,9 @@ def validate_extraction(fields: dict[str, Any], invoice_text: str | None = None,
             errors.append(f"line item amount: {exc}")
     if errors or invoice_text is None:
         return errors
+
+    if SIGNED_MONEY_RE.search(invoice_text + "\n" + email_text):
+        return ["Signed or parenthesized amounts require human review; credits are unsupported"]
 
     if "evidence" not in fields:
         fields["evidence"] = source_evidence(fields, invoice_text)

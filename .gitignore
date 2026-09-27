@@ -4,3 +4,7 @@ __pycache__/
 part2/audit/
 part2/.bin/
 .DS_Store
+finetuning/models/
+finetuning/adapters/
+Solutions Architect_ Demo Exercise.pdf
+savvy_showcase/

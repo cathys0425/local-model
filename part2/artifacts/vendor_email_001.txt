@@ -4,9 +4,9 @@ Subject: INV-92381 / PO-4821
 
 Hello AP team,
 
-Invoice INV-92381 is for load PO-4821.
+Invoice INV-92381 is for load PO-4821, BOL-73001.
 
-The additional $450 is a fuel surcharge. Please pay the full $12,450.
+The invoice includes linehaul, fuel surcharge, detention, lumper service, and tolls. The $375 difference from the PO is supported by the attached accessorial schedule. Please review the full $12,375 invoice.
 
 Thanks,
 ABC Logistics Billing

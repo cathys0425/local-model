@@ -1,3 +1,9 @@
+# Historical review and fix verification
+
+This document preserves the original review and subsequent fix verification. Statements about architecture, dependencies, CLI flags, test counts and unresolved defects describe those historical snapshots, not the current implementation. For current behavior and later multi-format results, see the [README](../README.md).
+
+## Original review: before fixes
+
 The current project is a small, explainable local pipeline worth retaining. The six live fixture checks passed, but reliability gaps prevent treating that result as proof of correct extraction or safe recommendations. No implementation files were edited during this review. Existing user edits were preserved; running the program appended its normal audit packets.
 
 **Scope and evidence**
@@ -100,3 +106,21 @@ Architecture-level protection is stronger: Python always performs lookups and de
 The security skill's available references cover Python web frameworks, not this plain Python CLI; these security conclusions are repository inspection and test findings, not framework-specific certification.
 
 Implement items 1–4 and 6 first: correct financial recommendations, strict prerequisites, exact vendor/paid-state checks, safe extraction failure, and backend guards. Then add line items, email ingestion, explicit statuses, and honest evaluation/brief traces. No fixes were applied because the user requested review and recommendations first.
+
+## Fix verification: after the original review
+
+Implementation follows the original review while retaining the existing CLI, mock backends, extraction tool, policy function and packet format. The files present at the start of implementation differed from the reviewed snapshot; current CLI status/email changes and the dependency pin were retained and completed.
+
+The highest-risk fixes are exact monetary calculations, required source-backed facts, explicit USD policy, exact vendor identity, paid-state checks, and a review-required result for extraction/backend/audit failures. Extraction keeps commercial fields and line items small; Python independently locates supporting original source lines without filling missing model facts. Optional LFM prose is constrained to approved sentences because a second free-form model judgement would not reliably validate its factual claims.
+
+The [repository README](../README.md) documents current setup, commands, statuses and supported limits. The original review above and its probe results are historical evidence; `probe_failures.py` targeted the pre-fix API and is superseded for regression testing by the current tests in `part2/`.
+
+Validation completed on the revised implementation:
+
+- 44 offline unittest methods passed (including parameterized failure cases); see `fixed-regression-tests.log`.
+- The real invoice_001 plus vendor_email_001 run completed locally: extraction 15.88 seconds (one attempt), generated brief 15.85 seconds. Exact delta `450.00`, tolerance `100.00`, status `HUMAN_APPROVAL_REQUIRED`, auto-post false, audit written. See `fixed-invoice-email.log`.
+- Unreadable custom input produced a visible `HUMAN_REVIEW_REQUIRED` / `input_failure` packet without a traceback; see `fixed-input-error.log`.
+- Earlier nested-evidence extraction experiments failed or timed out and were removed. The final schema asks for commercial facts and line amounts; source validation remains deterministic and cannot supply missing extracted facts.
+- Final real-server fixture evaluation: **5/5 passed** using `--case all --no-brief`. All four ordinary invoices extracted successfully on their first attempt; the injection fixture correctly skipped inference. Live extraction latencies were 19.98, 104.38, 59.59 and 43.10 seconds. The optional LFM brief was tested separately on the invoice/email example above. See `fixed-live-fixtures.log`.
+
+All requested implementation work and checks are complete. Local generation latency remains variable; the explicit timeout and review-required failure path are intentional. These successful runs demonstrate the tested fixtures, not universal extraction accuracy.

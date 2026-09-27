@@ -1,0 +1,30 @@
+{
+  "scope": "synthetic development experiment; not customer validation",
+  "split_policy": "disjoint vendors, invoice/PO identities and layout families; related synthetic language",
+  "files": {
+    "train.jsonl": {
+      "rows": 96,
+      "sha256": "6275abfa56d9026168d6627fb216e373dbe21900daef41804243fd84997c11fd"
+    },
+    "train_cases.jsonl": {
+      "rows": 96,
+      "sha256": "d20484f2568d9fc9004a2afb795b7f5682a093f638aada49a7a625066505b306"
+    },
+    "valid.jsonl": {
+      "rows": 16,
+      "sha256": "ee48ab8dea9734fac66f518d47c965876cd9bd07e92860477d7eea095d2141e8"
+    },
+    "valid_cases.jsonl": {
+      "rows": 16,
+      "sha256": "6bd3373e5fc605f0fb5b0080d40eb4159e787816dc495c192a0aeb528d032ca7"
+    },
+    "test.jsonl": {
+      "rows": 24,
+      "sha256": "c20c3db662ad54ca0ebc02271db08b5bac8411db305682a03d9706d321190173"
+    },
+    "test_cases.jsonl": {
+      "rows": 24,
+      "sha256": "2653d922fc62e9b05216f30e713ecf8d4663ec979279189c3b298a2be5c94345"
+    }
+  }
+}

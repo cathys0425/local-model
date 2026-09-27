@@ -32,7 +32,7 @@ def poppler_tool(name):
 def ocr_image(path):
     binary = ROOT / ".bin" / "local-ocr"
     if not binary.is_file():
-        raise InputError("Local OCR helper missing. Run the clang setup command in part2/MULTIFORMAT.md")
+        raise InputError("Local OCR helper missing. Run the clang setup command in the repository README.md")
     result = subprocess.run([str(binary), str(path)], capture_output=True, text=True, timeout=45, check=True)
     boxes = json.loads(result.stdout)
     if not boxes:
