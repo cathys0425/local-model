@@ -5,7 +5,7 @@ part2/audit/
 part2/.bin/
 .DS_Store
 finetuning/models/
-finetuning/adapters/
+finetuning/adapters/*/0*_adapters.safetensors
 Solutions Architect_ Demo Exercise.pdf
 savvy_showcase/
 README.zh-CN.md

@@ -239,7 +239,15 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s part2 -p 'test_*.py' -v
 ```
 
-The MLX demo uses the separate `finetuning/.venv`, the downloaded MLX-format model, and the adapter. Pinned dependencies and setup are in `finetuning/requirements-lock.txt`, `finetuning/download_model.py`, and `finetuning/train.yaml`. No cloud API or remote inference fallback is used.
+The MLX demo needs Apple Silicon. The trained adapter ships in `finetuning/adapters/invoice/` (its SHA-256 is recorded in `finetuning/results/provenance.json`); the base model is downloaded once from the pinned Hugging Face revision:
+
+```bash
+python3 -m venv finetuning/.venv
+finetuning/.venv/bin/python -m pip install -r finetuning/requirements-lock.txt
+finetuning/.venv/bin/python finetuning/download_model.py
+```
+
+Training settings are in `finetuning/train.yaml`. No cloud API or remote inference fallback is used.
 
 Fixture harness against a local llama.cpp server (`http://127.0.0.1:8080/v1`, base GGUF):
 
