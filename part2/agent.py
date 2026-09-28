@@ -221,7 +221,9 @@ def extract_fields(client: OpenAI, invoice_text: str, email_text: str = "",
                  request_latencies_seconds=[], latency_seconds=0.0)
     request_elapsed = 0.0
     errors = []
+    rejected = []
     for attempt in range(2):
+        fields = None
         trace.update(attempts=attempt + 1, repair_used=bool(attempt))
         messages = extraction_messages(invoice_text, email_text)
         if errors:
@@ -257,6 +259,11 @@ def extract_fields(client: OpenAI, invoice_text: str, email_text: str = "",
         except (ValueError, TypeError, IndexError, AttributeError) as exc:
             errors = [str(exc)]
         trace["validation_errors"] = errors
+        # Keep what the model proposed, so a rejected answer (e.g. an injected payee)
+        # stays visible in the packet and audit log after a successful repair.
+        rejected.append({"attempt": attempt + 1, "errors": errors,
+                         "fields": json.loads(json.dumps(fields, default=str)) if isinstance(fields, dict) else None})
+        trace["rejected_attempts"] = rejected
     raise ValueError("extraction failed after one repair: " + "; ".join(errors))
 
 

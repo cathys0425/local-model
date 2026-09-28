@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
 from agent import load_invoice, resolve_invoice
 from approval import prompt_for_decision
 from ingestion import resolve_files
+from validation import FIELDS
 
 ARTIFACTS = ROOT / "artifacts"
 
@@ -158,7 +159,21 @@ def print_packet(packet: dict, verbose: bool = False) -> None:
             print(f"Ladder:       {rung['rung']}: {rung['result']}" + (f" ({rung['reason']})" if rung.get("reason") else ""))
         if packet["extract_trace"].get("method") == "lfm":
             print("Tool:         submit_extracted_fields (candidate facts only)")
-        print(f"Trace:        {json.dumps({k: v for k, v in packet['extract_trace'].items() if k != 'ladder'})}")
+        trace = packet["extract_trace"]
+        rejected = trace.get("rejected_attempts", [])
+        for r in rejected:
+            print(f"Attempt {r['attempt']}:    REJECTED by Python validation")
+            said = [f"{k}={v!r}" for k, v in (r["fields"] or {}).items()
+                    if k in FIELDS and any(k in e for e in r["errors"])]
+            if said:
+                print(f"  model said: {', '.join(said)}")
+            for e in r["errors"]:
+                print(f"  why:        {e}")
+        if rejected and trace.get("status") == "ok":
+            print(f"Attempt {trace['attempts']}:    accepted (repair; same validation)")
+        # Rejected attempts are printed above; a successful repair leaves stale errors.
+        hidden = {"ladder", "rejected_attempts"} | ({"validation_errors"} if trace.get("status") == "ok" else set())
+        print(f"Trace:        {json.dumps({k: v for k, v in trace.items() if k not in hidden})}")
         print(f"Audit:        {packet['audit_status']}")
         if "ingestion" in packet:
             print("Ingestion:    " + json.dumps({"latency_seconds": packet["ingestion"]["latency_seconds"],
