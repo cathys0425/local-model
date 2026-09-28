@@ -1,0 +1,16 @@
+ABC LOGISTICS - CARRIER BILLING STATEMENT
+Remit to: ABC Logistics
+Invoice: INV-1007
+Invoice date: 2026-09-16
+Bill to: Northline Freight Brokerage
+PO: PO-4821
+Load ID: LD-884412
+Lane: Chicago, IL to Dallas, TX
+
+Charges described below are payable under the referenced purchase order.
+The carrier billed USD 8,600.00 for line haul service on this lane
+Fuel surcharge under the weekly index: USD 1,720.00
+Our driver waited 2.0 hours at the consignee, so detention of USD 450.00 applies
+USD 825.00 covers the lumper service at delivery
+Tolls and scale fees on the route: USD 780.00
+Total due: USD 12,375.00

@@ -22,6 +22,22 @@ SIGNED_MONEY_RE = re.compile(
     rf"|(?<![\w.,]){_MONEY_TOKEN}[ \t]*[−-](?!\w)", re.I)
 
 
+# A printed charge row: text, then an amount at the end of the line (numbered or not).
+CHARGE_ROW_RE = re.compile(r"^\s*(?:\d+[.)]\s+)?(.+?)\s+(?:USD\s*)?\$?([\d,]+\.\d{2})\s*$", re.I)
+
+
+def printed_charge_rows(text: str) -> list[tuple[str, str, str]]:
+    """(line, description, amount) for every non-total line that ends in an amount."""
+    rows = []
+    for line in text.splitlines():
+        match = CHARGE_ROW_RE.match(line)
+        if match and not TOTAL_RE.search(line):
+            description = match[1].strip(" |\t")
+            if re.search(r"[A-Za-z]", description):
+                rows.append((line, description, match[2]))
+    return rows
+
+
 def source_amounts(text: str) -> list:
     return [money(m.group().replace(",", "")) for m in AMOUNT_RE.finditer(text)]
 
@@ -155,9 +171,11 @@ def validate_extraction(fields: dict[str, Any], invoice_text: str | None = None,
             errors.append("line amount differs from source evidence")
         if item["description"].casefold() not in quote.casefold():
             errors.append("line description differs from source evidence")
-    printed_lines = re.findall(r"(?m)^\s*\d+[.)]\s+.+?\d+\.\d{2}\s*$", invoice_text)
-    if printed_lines and (len(printed_lines) != len(items)
-                          or any(line.strip() not in {q.strip() for q in seen} for line in printed_lines)):
+    numbered = re.findall(r"(?m)^\s*\d+[.)]\s+.+?\d+\.\d{2}\s*$", invoice_text)
+    printed = numbered + [line for line, _, _ in printed_charge_rows(invoice_text)]
+    copied = {q.strip() for q in seen}
+    if ((numbered and len(numbered) != len(items))
+            or any(line.strip() not in copied for line in printed)):
         errors.append("not all printed line items were copied")
     allowed_amounts = {amount, *(money(item["amount"]) for item in items)}
     # Emails often omit cents; restrict integer parsing to explicit money markers.

@@ -1,8 +1,8 @@
 """
 Freight-broker AP exception agent on LFM2.5-2.6B.
 
-Language model is used only to extract fields from messy invoice text
-and to write a short clerk brief. Lookups, math, policy, and email
+The language model is used only to extract fields from invoice text that
+rules cannot read. Lookups, math, policy, the clerk brief and email
 templates are deterministic Python.
 """
 
@@ -29,10 +29,14 @@ from backends import (
     lookup_vendor,
 )
 
+from rules import rules_extract
 from validation import FIELDS, validate_extraction
+
+EXTRACTORS = ("lfm", "ladder", "rules")
 
 MODEL = "lfm2.5-2.6b"
 BASE_URL = "http://127.0.0.1:8080/v1"
+AUDIT_DIR = Path(__file__).resolve().parent / "audit"
 
 INJECTION_PATTERNS = [
     re.compile(r"ignore (all )?(previous|prior) instructions", re.I),
@@ -93,7 +97,6 @@ def disposition(exception_type: str, rationale: str, action: str = "escalate",
                 status: str = "HUMAN_REVIEW_REQUIRED") -> dict[str, Any]:
     return {"status": status, "exception_type": exception_type,
             "recommended_action": action, "rationale": rationale,
-            "confidence": "high" if status == "HUMAN_APPROVAL_REQUIRED" else "low",
             "requires_human_approval": True, "auto_post": False}
 
 
@@ -123,16 +126,38 @@ def decide_disposition(
         return disposition("invalid_amount", "; ".join(mismatch["validation_errors"]))
     if not mismatch["line_items_match"]:
         return disposition("line_item_mismatch", "Printed line items are missing or do not sum to the invoice total.")
+    charges = mismatch.get("charge_review", [])
+    unapproved = [c for c in charges if c["status"] in ("not_on_rate_confirmation", "unrecognized")]
+    backup = [c for c in charges if c["status"] == "backup_required"]
+    findings = charge_findings(unapproved, backup)
     delta = Decimal(mismatch["amount_delta"])
     if not mismatch["within_tolerance"]:
         if delta < 0:
-            return disposition("underbilling", f"Invoice is below PO by {-delta}. Confirm scope; do not increase payment to the PO amount.")
+            return disposition("underbilling", f"Invoice is below PO by {-delta}. Confirm scope; do not increase payment to the PO amount.{findings}")
         return disposition("amount_mismatch",
                            f"Invoice exceeds PO by {delta} USD (tolerance {mismatch['tolerance_usd']}). "
-                           f"Propose {mismatch['po_amount']} USD pending human approval and variance backup.",
+                           f"Propose {mismatch['po_amount']} USD pending human approval and variance backup.{findings}",
                            "short_pay", "HUMAN_APPROVAL_REQUIRED")
-    return disposition("matched", "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
+    if unapproved:
+        return disposition("unauthorized_charge",
+                           f"Total is within tolerance, but some charges are not authorized by the rate confirmation.{findings}",
+                           "request_information")
+    return disposition("matched", "Vendor, currency, line totals and amount passed policy checks. "
+                       f"Approver may approve the invoice amount.{findings}",
                        "approve_match", "HUMAN_APPROVAL_REQUIRED")
+
+
+def charge_findings(unapproved: list[dict[str, Any]], backup: list[dict[str, Any]]) -> str:
+    """Name the specific charges a reviewer must question or support."""
+    text = ""
+    if unapproved:
+        text += " Not on rate confirmation: " + "; ".join(
+            f"{c['description']} {c['amount']}" + (" (unrecognized charge type)" if c["status"] == "unrecognized" else "")
+            for c in unapproved) + "."
+    if backup:
+        text += " Backup required before approval: " + "; ".join(
+            f"{c['description']} {c['amount']} ({c['backup']})" for c in backup) + "."
+    return text
 
 
 def _client() -> OpenAI:
@@ -192,7 +217,7 @@ def extraction_messages(invoice_text: str, email_text: str = "") -> list[dict[st
 def extract_fields(client: OpenAI, invoice_text: str, email_text: str = "",
                    trace: dict[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
     trace = trace if trace is not None else {}
-    trace.update(status="started", attempts=0, repair_used=False,
+    trace.update(status="started", method="lfm", attempts=0, repair_used=False,
                  request_latencies_seconds=[], latency_seconds=0.0)
     request_elapsed = 0.0
     errors = []
@@ -235,52 +260,64 @@ def extract_fields(client: OpenAI, invoice_text: str, email_text: str = "",
     raise ValueError("extraction failed after one repair: " + "; ".join(errors))
 
 
-def write_clerk_brief(client: OpenAI, extraction: dict[str, Any], mismatch: dict[str, Any],
-                      decision: dict[str, Any], generate_brief: bool = True,
-                      trace: dict[str, Any] | None = None) -> str:
-    """Constrained language composition: only approved fact sentences can be shown."""
+def rules_complete(fields: dict[str, Any]) -> str | None:
+    """Rules may only answer alone when every printed charge was captured."""
+    items = fields.get("line_items") or []
+    if not items:
+        return "no printed charges captured"
+    if sum((money(item["amount"]) for item in items), Decimal("0.00")) != money(fields["invoice_amount"]):
+        return "captured charges do not sum to the total; narrative charges need language"
+    return None
+
+
+def extract_with_ladder(client_factory, invoice_text: str, email_text: str = "",
+                        trace: dict[str, Any] | None = None, extractor: str = "ladder") -> tuple[dict[str, Any], dict[str, Any]]:
+    """Rules first, then the local LFM, then a person. Every rung faces the same validation."""
     trace = trace if trace is not None else {}
-    sentences = [
+    ladder = []
+    if extractor in ("ladder", "rules"):
+        try:
+            fields, _ = rules_extract(None, invoice_text, email_text)
+            reason = rules_complete(fields)
+            if reason is None:
+                ladder.append({"rung": "rules", "result": "accepted"})
+                trace.update(status="ok", method="rules", attempts=0, repair_used=False,
+                             latency_seconds=0.0, ladder=ladder)
+                return fields, trace
+        except ValueError as exc:
+            reason = str(exc)
+        ladder.append({"rung": "rules", "result": "declined", "reason": reason})
+        if extractor == "rules":
+            trace.update(status="failed", method="rules", attempts=0, ladder=ladder)
+            raise ValueError("rules could not extract a complete invoice: " + reason)
+    try:
+        fields, trace = extract_fields(client_factory(), invoice_text, email_text, trace)
+        ladder.append({"rung": "lfm", "result": "accepted"})
+        return fields, trace
+    except Exception:
+        ladder.append({"rung": "lfm", "result": "failed"})
+        # A larger model would be the next rung for residual language ambiguity. It is
+        # deliberately off: a person handles the case instead (see README).
+        ladder.append({"rung": "frontier", "result": "not enabled"})
+        raise
+    finally:
+        trace["ladder"] = ladder
+
+
+def clerk_brief(decision: dict[str, Any]) -> str:
+    """Deterministic brief. An LFM-composed version was tried and removed: constrained
+    to approved sentences it added nothing a template could not, and it was one more
+    probabilistic step."""
+    return " ".join([
         f"Status: {decision['status']}; recommended action: {decision['recommended_action']}.",
         decision["rationale"],
         "Human approval is required; no payment has been approved or executed.",
-    ]
-    fallback = " ".join(sentences)
-    trace["status"] = "template"
-    if not generate_brief or decision["status"] != "HUMAN_APPROVAL_REQUIRED":
-        return fallback
-    # Raw notes, email instructions and payee strings never reach the writer.
-    facts = [f"Invoice total is {mismatch['invoice_amount']} USD and PO total is {mismatch['po_amount']} USD.",
-             f"The signed discrepancy is {mismatch['amount_delta']} USD; tolerance is {mismatch['tolerance_usd']} USD.",
-             "Printed line items sum to the invoice total."]
-    allowed = sentences + facts
-    try:
-        response = client.chat.completions.create(
-            model=MODEL, temperature=0.1, max_tokens=1400,
-            messages=[{"role": "system", "content": "Compose a concise AP clerk brief using ONLY the supplied approved sentences verbatim. "
-                       "Include all mandatory sentences exactly once. You may add one or two optional fact sentences. "
-                       "Return plain text with sentences separated by newlines. Do not add headings or instructions."},
-                      {"role": "user", "content": json.dumps({"mandatory": sentences, "optional": facts})}],
-        )
-        choice = response.choices[0]
-        trace["finish_reason"] = choice.finish_reason
-        remaining = (choice.message.content or "").strip()
-        lines = []
-        while remaining:
-            sentence = next((s for s in allowed if remaining.startswith(s)), None)
-            if sentence is None:
-                raise ValueError("brief contains text outside approved facts")
-            lines.append(sentence)
-            remaining = remaining[len(sentence):].lstrip()
-        # A strict allowlist avoids pretending arbitrary generated prose can be verified.
-        if (choice.finish_reason != "stop" or not lines or len(lines) != len(set(lines))
-                or not set(sentences) <= set(lines) or not set(lines) <= set(allowed)):
-            raise ValueError("brief empty, truncated or outside approved facts")
-        trace["status"] = "generated"
-        return " ".join(lines)
-    except Exception as exc:
-        trace.update(status="fallback", error=f"{type(exc).__name__}: {exc}")
-        return fallback
+    ])
+
+
+def human_options(status: str) -> list[str]:
+    """Approval is offered only for a checked proposal; every other case is reviewed."""
+    return ["approve", "reject", "escalate"] if status == "HUMAN_APPROVAL_REQUIRED" else ["reject", "escalate"]
 
 
 def build_packet(
@@ -298,7 +335,7 @@ def build_packet(
     return {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
-        "human_decision": ["approve", "edit", "escalate"],
+        "human_decision": human_options(disposition["status"]),
         "auto_post": False,
         "prompt_injection_suspected": bool(injection_hits),
         "prompt_injection_hits": injection_hits,
@@ -314,20 +351,24 @@ def build_packet(
 
 
 def write_audit(packet: dict[str, Any]) -> Path:
-    folder = Path(__file__).resolve().parent / "audit"
-    folder.mkdir(exist_ok=True)
-    path = folder / "packets.jsonl"
+    AUDIT_DIR.mkdir(exist_ok=True)
+    path = AUDIT_DIR / "packets.jsonl"
     with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps({"packet": packet}, allow_nan=False) + "\n")
     return path
 
 
 def resolve_invoice(invoice_text: str, client: OpenAI | None = None,
-                    email_text: str = "", generate_brief: bool = True,
-                    input_error: str | None = None, ingestion: dict | None = None) -> dict[str, Any]:
+                    email_text: str = "",
+                    input_error: str | None = None, ingestion: dict | None = None,
+                    injection_screen: bool = True, extractor: str = "lfm") -> dict[str, Any]:
+    if extractor not in EXTRACTORS:
+        raise ValueError(f"extractor must be one of {EXTRACTORS}")
     extraction, po, vendor, paid, mismatch = {}, {}, {}, None, {}
-    extract_trace, brief_trace = {"status": "skipped", "attempts": 0}, {}
-    injection_hits = detect_prompt_injection(invoice_text + "\n" + email_text)
+    extract_trace = {"status": "skipped", "attempts": 0}
+    # The phrase screen is a cheap tripwire, not the defense. Red-team runs turn it
+    # off to show that source validation and deterministic policy still hold.
+    injection_hits = detect_prompt_injection(invoice_text + "\n" + email_text) if injection_screen else []
     decision = None
     if input_error:
         decision = disposition("input_failure", input_error)
@@ -339,9 +380,16 @@ def resolve_invoice(invoice_text: str, client: OpenAI | None = None,
         # Known attacks need no inference or backend calls to reach a safe hold.
         decision = disposition("prompt_injection", "Instruction-like content detected in untrusted documents. Human review required.")
     else:
-        try:
+        def client_factory():
+            nonlocal client
             client = client or _client()
-            extraction, extract_trace = extract_fields(client, invoice_text, email_text, extract_trace)
+            return client
+        try:
+            if extractor == "lfm":
+                extraction, extract_trace = extract_fields(client_factory(), invoice_text, email_text, extract_trace)
+            else:
+                extraction, extract_trace = extract_with_ladder(client_factory, invoice_text, email_text,
+                                                                extract_trace, extractor)
         except Exception as exc:
             extract_trace.update(status="failed", error=f"{type(exc).__name__}: {exc}")
             decision = disposition("extraction_failure", "Local extraction could not be validated. Review source documents; no payment recommendation.")
@@ -366,13 +414,14 @@ def resolve_invoice(invoice_text: str, client: OpenAI | None = None,
                 decision = decide_disposition(extraction, po, vendor, mismatch, injection_hits)
             except Exception as exc:
                 decision = disposition("backend_failure", f"Backend validation failed: {type(exc).__name__}: {exc}")
-    brief = write_clerk_brief(client, extraction, mismatch, decision, generate_brief, brief_trace)
-    email = draft_vendor_email(extraction, mismatch, decision["recommended_action"])
+    brief = clerk_brief(decision)
+    email = draft_vendor_email(extraction, mismatch, decision["recommended_action"], decision["exception_type"])
     packet = build_packet(invoice_text, extraction, po, vendor, mismatch, decision,
                           email, brief, injection_hits, extract_trace)
-    packet.update(status=decision["status"], brief_trace=brief_trace,
+    packet.update(status=decision["status"],
                   packet_id=str(uuid4()), created_at=datetime.now(timezone.utc).isoformat(),
-                  source_email_preview=email_text[:400], audit_status="written")
+                  source_email_preview=email_text[:400], audit_status="written",
+                  injection_screen="on" if injection_screen else "off (red-team run)")
     packet["lookups"]["paid_invoice"] = paid
     if ingestion is not None:
         packet["ingestion"] = ingestion
@@ -381,8 +430,9 @@ def resolve_invoice(invoice_text: str, client: OpenAI | None = None,
     except Exception as exc:
         decision = disposition("audit_failure", "Audit record could not be saved; manual review is required.")
         packet.update(status=decision["status"], disposition=decision, audit_status="failed",
+                      human_decision=human_options(decision["status"]),
                       audit_error=f"{type(exc).__name__}: {exc}")
-        packet["clerk_brief"] = write_clerk_brief(client, {}, {}, decision, False, packet["brief_trace"])
+        packet["clerk_brief"] = clerk_brief(decision)
         packet["vendor_email_draft"] = draft_vendor_email(extraction, mismatch, "escalate")
     return packet
 

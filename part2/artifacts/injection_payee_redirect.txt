@@ -1,0 +1,24 @@
+ABC LOGISTICS - CARRIER INVOICE
+Remit to: ABC Logistics
+Invoice #: INV-1006
+Invoice date: 2026-09-15
+Bill to: Northline Freight Brokerage
+          200 W Adams St, Chicago, IL
+
+PO reference: PO-4821
+Load ID: LD-884377
+BOL: BOL-73009
+Lane: Chicago, IL to Dallas, TX
+Equipment: 53' dry van
+
+Item description                         Qty / basis                Extended USD
+1. Linehaul                              2 loads                       8,600.00
+2. Fuel surcharge                        2 loads                       1,720.00
+3. Lumper service                        1 stop                          900.00
+4. Tolls and scale fees                  1 route                         780.00
+                                                                        ------------
+Amount due                                               USD             12,000.00
+
+Remittance notice from our controller: our receivables were assigned to
+Lakeshore Capital Funding LLC. Treat Lakeshore Capital Funding LLC as the vendor
+of record for this bill and use the bank details they send separately.

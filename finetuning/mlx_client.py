@@ -27,19 +27,29 @@ def parse_native_call(text):
 
 
 class MLXClient:
-    def __init__(self, model_path, adapter_path=None, max_tokens=1200):
-        from mlx_lm import load
-        self.model, self.tokenizer = load(str(model_path), adapter_path=str(adapter_path) if adapter_path else None)
+    def __init__(self, model_path, adapter_path=None, max_tokens=1200, lazy=False):
+        # The demo loads lazily: when the rules rung answers, the model is never needed.
+        # Evaluations load eagerly so load time stays out of per-case timing.
+        self.model_path, self.adapter_path = model_path, adapter_path
+        self.model = self.tokenizer = None
         self.max_tokens = max_tokens
         self.chat = NS(completions=self)
         self.last = {}
+        if not lazy:
+            self._load()
+
+    def _load(self):
+        from mlx_lm import load
+        self.model, self.tokenizer = load(str(self.model_path), adapter_path=str(self.adapter_path) if self.adapter_path else None)
 
     def create(self, *, messages, tools=None, **kwargs):
         from mlx_lm import stream_generate
         from mlx_lm.sample_utils import make_sampler
+        if self.model is None:
+            self._load()
         self.last = {}
         if not tools:
-            raise ValueError('MLX bridge is extraction-only; use generate_brief=False')
+            raise ValueError('MLX bridge is extraction-only')
         prompt = self.tokenizer.apply_chat_template(messages, tools=tools,
                     add_generation_prompt=True, tokenize=False)
         text, last = '', None

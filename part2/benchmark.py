@@ -5,52 +5,17 @@ import hashlib
 import json
 from pathlib import Path
 import platform
-import re
 import statistics
 import time
 from unittest.mock import patch
 from urllib.parse import urlparse
 
 import agent
-from backends import money
 from ingestion import load_inputs
-from validation import FIELDS, PO_RE, INVOICE_RE, PAYEE_RE, TOTAL_RE, AMOUNT_RE, validate_extraction
+from rules import rules_extract
+from validation import FIELDS
 
 ROOT = Path(__file__).resolve().parent
-
-
-def rules_extract(client, invoice_text, email_text="", trace=None):
-    """Generic labeled fields and tabular charge rows; no fixture IDs or gold access."""
-    trace = trace if trace is not None else {}
-    trace.update(status="failed", attempts=1, repair_used=False, method="regex")
-    def unique(pattern):
-        values = list(dict.fromkeys(pattern.findall(invoice_text)))
-        if len(values) != 1:
-            raise ValueError("Rules extractor requires one unambiguous labeled value")
-        return values[0].strip()
-    total_line = unique(TOTAL_RE)
-    amounts = AMOUNT_RE.findall(total_line)
-    if len(amounts) != 1:
-        raise ValueError("Rules total is missing or ambiguous")
-    fields = {"po_number": unique(PO_RE), "invoice_number": unique(INVOICE_RE),
-              "vendor_name": unique(PAYEE_RE), "invoice_amount": str(money(amounts[0].replace(",", ""))),
-              "currency": unique(re.compile(r"\b(?:USD|EUR|CAD|GBP|JPY|AUD|CHF)\b")), "line_items": []}
-    # Numbered rows, or a description separated from money by a table-sized gap.
-    for line in invoice_text.splitlines():
-        if TOTAL_RE.search(line):
-            continue
-        match = re.match(r"^\s*(?:\d+[.)]\s+)?(.+?)\s+(?:USD\s*)?\$?([\d,]+\.\d{2})\s*$", line, re.I)
-        if match:
-            description = match[1].strip(" |\t")
-            if description and re.search(r"[A-Za-z]", description):
-                fields["line_items"].append({"description": description,
-                                             "amount": str(money(match[2].replace(",", "")))})
-    errors = validate_extraction(fields, invoice_text, email_text)
-    if errors:
-        trace["validation_errors"] = errors
-        raise ValueError("; ".join(errors))
-    trace["status"] = "ok"
-    return fields, trace
 
 
 def summarize(rows):
@@ -116,7 +81,7 @@ def main():
             config = patch.multiple(agent, MODEL=args.larger_model, BASE_URL=args.larger_base_url) if method == "larger" else nullcontext()
             with context, config:
                 packet = agent.resolve_invoice(invoice, email_text=email, ingestion=dict(ingestion, benchmark_method=method),
-                                               input_error=ingestion_error, generate_brief=False)
+                                               input_error=ingestion_error)
             elapsed = time.monotonic() - start
             fields = {key: packet["extraction"].get(key) == record["gold"][key] for key in FIELDS}
             line_items_exact = ([item.get("amount") for item in packet["extraction"].get("line_items", [])]

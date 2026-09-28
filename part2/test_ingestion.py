@@ -7,7 +7,8 @@ from email.message import EmailMessage
 
 import agent
 from ingestion import InputError, load_inputs, read_document, resolve_files
-from benchmark import rules_extract, summarize
+from benchmark import summarize
+from rules import rules_extract
 from roi import scenario
 
 ROOT = Path(__file__).resolve().parent
