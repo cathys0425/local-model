@@ -183,7 +183,7 @@ The model gets one tool, `submit_extracted_fields`, which returns candidate invo
 |---|---|---|
 | Live fixtures, LoRA via MLX ([results](review/live-fixtures-lora.json), [runner](review/live_fixtures_mlx.py)) | 9/13 pass: 8 original fixtures, the narrative-charges case, and 4 red-team cases. All 4 red-team cases safe; narrative passed. The 4 failures (`unknown_po`, `vendor_mismatch`, both near-tolerance cases) are extraction holds: the adapter dropped cents (9,625.40 → 9625) or miscopied a digit (8,250 → 8225), and validation rejected it. 0 incorrect proposals | The adapter's training data contained no amounts with cents (0 of 408). The failures show the validation layer working and a data gap to fix |
 | Live fixtures, base model via llama.cpp ([log](review/live-fixtures-base.log)) | 12/13 pass, including all 8 original fixtures and all 4 red-team cases. The narrative-charges case was held because its line evidence couldn't be matched to source rows; the payee-redirect case was also held for line evidence (a safe outcome). 0 incorrect proposals. Median extraction about 44s | Base copies cents correctly where the adapter doesn't; the adapter is faster and reads the narrative case |
-| Multi-format corpus, rules | 32/32 routed; all 28 non-injection documents exact on the five fields and line-item amounts, across PDF, PNG, scanned PDF, and EML. Re-run after the charge-review and printed-row changes | Stable labels favor rules, which is why the ladder tries them first |
+| Multi-format corpus, rules ([report](review/multiformat-rules-full.json)) | 32/32 routed; all 28 non-injection documents exact on the five fields and line-item amounts, across PDF, PNG, scanned PDF, and EML. Re-run after the charge-review and printed-row changes | Stable labels favor rules, which is why the ladder tries them first |
 | Language-variation probe ([report](finetuning/results/language-variation.json)) | Exact useful coverage: rules 4/8, base LFM 7/8, LoRA 8/8. Incorrect proposals: 0/8 for each | A focused signal that language helps on prose charge descriptions |
 | LoRA fine-tuning ([comparison](finetuning/results/comparison.json)) | 60 steps; 96 train / 16 validation / 24 held-out synthetic examples. Base and adapter both exact on 24/24; median output tokens 718.5 → 79 (89% fewer) | Compact output with unchanged accuracy on the training distribution, which had whole-dollar amounts only |
 | Timing | Extraction median 43.94s base vs. 20.69s adapter (one sequential run under variable load); about 5s per adapter extraction in the live fixture run | Not a controlled benchmark |
@@ -226,7 +226,7 @@ All documents are synthetic, built with care from real freight-invoice layouts. 
 | Ingestion | `part2/ingestion.py`, `part2/ocr.m` | PDF and email parsing; local macOS Vision OCR |
 | Fixtures | `part2/artifacts/` | Invoices, red-team documents, and the 32-file multi-format corpus |
 | Fine-tuning | `finetuning/train.yaml`, `finetuning/prepare_data.py`, `finetuning/results/` | LoRA configuration, data, and results |
-| Evaluation | `part2/test_*.py`, `part2/benchmark.py`, `finetuning/evaluate_language_variation.py`, `review/` | Offline tests, benchmarks, live runs, historical review |
+| Evaluation | `part2/test_*.py`, `part2/benchmark.py`, `finetuning/evaluate_language_variation.py`, `review/` | Offline tests, benchmarks, and saved live-run and corpus results |
 | Model exploration | `part1/` | Local model measurements and a model-chosen tool call |
 
 ## Run

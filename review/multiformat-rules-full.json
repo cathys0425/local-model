@@ -25,15 +25,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.115,
-      "ingestion_seconds": 0.072,
-      "processing_seconds": 0.043,
+      "pipeline_seconds": 0.114,
+      "ingestion_seconds": 0.07,
+      "processing_seconds": 0.044,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -88,7 +88,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -120,19 +131,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 2 loads",
+              "amount": "8600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 2 loads",
+              "amount": "1720.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "825.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "780.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "amount_mismatch",
           "recommended_action": "short_pay",
-          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup.",
-          "confidence": "high",
+          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention | 2.0 hr 450.00 (signed in/out times); Lumper service | 1 stop 825.00 (lumper receipt); Tolls and scale fees | 1 route 780.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. Please provide supporting backup for the variance. No payment has been approved.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention | 2.0 hr 450.00 (signed in/out times); Lumper service | 1 stop 825.00 (lumper receipt); Tolls and scale fees | 1 route 780.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. No payment has been approved.\n\nPlease send backup for these accessorial charges:\n- Detention | 2.0 hr 450.00: signed in/out times\n- Lumper service | 1 stop 825.00: lumper receipt\n- Tolls and scale fees | 1 route 780.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -141,13 +188,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7201\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nLoad / BOL: BOL-73000\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 2 loads                         ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "55046fa0-84a1-4072-9ba2-4f82161ea277",
-        "created_at": "2026-09-27T05:02:13.160465+00:00",
+        "packet_id": "81e96c23-ad8d-4636-a828-be3f96257fea",
+        "created_at": "2026-09-28T01:42:18.155095+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -164,7 +209,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.072,
+          "latency_seconds": 0.07,
           "benchmark_method": "rules"
         }
       }
@@ -186,15 +231,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.643,
-      "ingestion_seconds": 0.64,
+      "pipeline_seconds": 0.558,
+      "ingestion_seconds": 0.556,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -249,7 +294,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -281,19 +337,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "8500.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1700.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  1.5 hr",
+              "amount": "375.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "900.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "597.50",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.5 hr 375.00 (signed in/out times); Lumper service  1 stop 900.00 (lumper receipt); Tolls and scale fees  1 route 597.50 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.5 hr 375.00 (signed in/out times); Lumper service  1 stop 900.00 (lumper receipt); Tolls and scale fees  1 route 597.50 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention  1.5 hr 375.00: signed in/out times\n- Lumper service  1 stop 900.00: lumper receipt\n- Tolls and scale fees  1 route 597.50: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -302,13 +394,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nPO REFERENCE: PO-4821\nINVOICE DATE: 2026-09-09\nREMIT TO: ABC Logistics\nINVOICE NUMBER: INV-7207\nBILL TO: Northline Freight Brokerage\nLOAD / BOL: BOL-73005\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $8,500.00\nFuel surcharge  1 load  $1,700.00\nDetention  1.5 hr  $375.00\nLumper service  1 stop  $900.00\nTolls and scale fees  1 route  $597.",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "681e3846-bdc7-4edc-a82c-b7bf9a97f8c8",
-        "created_at": "2026-09-27T05:02:13.804709+00:00",
+        "packet_id": "816bf3cb-97e3-4c63-a887-17900e5a65bd",
+        "created_at": "2026-09-28T01:42:18.714670+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -538,7 +628,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.64,
+          "latency_seconds": 0.556,
           "benchmark_method": "rules"
         }
       }
@@ -560,15 +650,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.686,
-      "ingestion_seconds": 0.685,
+      "pipeline_seconds": 0.577,
+      "ingestion_seconds": 0.576,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -648,6 +737,7 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": null,
+          "charge_review": [],
           "validation_errors": [
             "po_amount: amount must be a decimal number"
           ]
@@ -657,7 +747,6 @@
           "exception_type": "unknown_po",
           "recommended_action": "request_information",
           "rationale": "No matching purchase order in the broker TMS.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -671,13 +760,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nPO REFERENCE: PO-9999\nINVOICE DATE: 2026-09-06\nREMIT TO: Harbor Line Haul\nINVOICE NUMBER: INV-7203\nBILL TO: Northline Freight Brokerage\nLOAD / BOL: BOL-73002\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $6,500.00\nFuel surcharge  1 load  $1,300.00\nDetention  1.5 hr  $425.00\nLumper service  1 stop  $950.00\nTolls and scale fees  1 route  $4",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "b1512f73-f450-4edb-86d0-6adc68b86671",
-        "created_at": "2026-09-27T05:02:14.492329+00:00",
+        "packet_id": "1d1bbba3-a5fa-479a-99c1-d8b3f404a248",
+        "created_at": "2026-09-28T01:42:19.293131+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -908,7 +995,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.684,
+          "latency_seconds": 0.576,
           "benchmark_method": "rules"
         }
       }
@@ -930,15 +1017,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.008,
-      "ingestion_seconds": 0.005,
+      "pipeline_seconds": 0.007,
+      "ingestion_seconds": 0.004,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -993,7 +1079,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "error": "vendor missing or ambiguous"
@@ -1016,6 +1113,43 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "8250.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1650.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Layover | 1 night",
+              "amount": "1195.00",
+              "category": "layover",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "600.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": [
             "tolerance_usd: amount must be a decimal number"
           ]
@@ -1025,7 +1159,6 @@
           "exception_type": "vendor_mismatch",
           "recommended_action": "escalate",
           "rationale": "Invoice payee does not match the PO vendor.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -1039,13 +1172,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: XYZ Freight LLC\n\nInvoice number: INV-7204\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-07\n\nLoad / BOL: BOL-73003\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 1 load                        ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "210fbe86-81c9-4dff-8448-82de619b22d9",
-        "created_at": "2026-09-27T05:02:14.500993+00:00",
+        "packet_id": "9dadca09-2f00-4bce-9b2c-49566b6e70be",
+        "created_at": "2026-09-28T01:42:19.301375+00:00",
         "source_email_preview": "Invoice INV-7204 for PO-4821\nHello AP team,\nPlease review invoice INV-7204 for PO-4821.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -1072,7 +1203,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.005,
+          "latency_seconds": 0.004,
           "benchmark_method": "rules"
         }
       }
@@ -1094,15 +1225,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.293,
-      "ingestion_seconds": 0.291,
+      "pipeline_seconds": 0.27,
+      "ingestion_seconds": 0.268,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -1157,7 +1288,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -1189,19 +1331,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  2 loads",
+              "amount": "8600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  2 loads",
+              "amount": "1720.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "825.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "780.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "amount_mismatch",
           "recommended_action": "short_pay",
-          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup.",
-          "confidence": "high",
+          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention  2.0 hr 450.00 (signed in/out times); Lumper service  1 stop 825.00 (lumper receipt); Tolls and scale fees  1 route 780.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. Please provide supporting backup for the variance. No payment has been approved.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention  2.0 hr 450.00 (signed in/out times); Lumper service  1 stop 825.00 (lumper receipt); Tolls and scale fees  1 route 780.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. No payment has been approved.\n\nPlease send backup for these accessorial charges:\n- Detention  2.0 hr 450.00: signed in/out times\n- Lumper service  1 stop 825.00: lumper receipt\n- Tolls and scale fees  1 route 780.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -1210,13 +1388,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nVENDOR: ABC Logistics\nINVOICE NUMBER: INV-7201\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nINVOICE DATE: 2026-09-04\nLOAD / BOL: BOL-73000\nDESCRIPTION  BASIS  CHARGE\nLinehaul  2 loads  $8,600.00\nFuel surcharge  2 loads  $1,720.00\nDetention  2.0 hr  $450.00\nLumper service  1 stop  $825.00\nTolls and scale fees  1 route  $780.",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "5baf251b-7192-4d7d-bbd6-9d01070a17d6",
-        "created_at": "2026-09-27T05:02:14.794781+00:00",
+        "packet_id": "d3d263e0-0d6e-4ad6-9664-9aaf19fb9183",
+        "created_at": "2026-09-28T01:42:19.572648+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -1446,7 +1622,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.291,
+          "latency_seconds": 0.268,
           "benchmark_method": "rules"
         }
       }
@@ -1468,15 +1644,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.593,
-      "ingestion_seconds": 0.591,
+      "pipeline_seconds": 0.557,
+      "ingestion_seconds": 0.555,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -1531,7 +1707,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -1563,19 +1750,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  2 loads",
+              "amount": "8600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  2 loads",
+              "amount": "1720.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "825.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "780.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "amount_mismatch",
           "recommended_action": "short_pay",
-          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup.",
-          "confidence": "high",
+          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention  2.0 hr 450.00 (signed in/out times); Lumper service  1 stop 825.00 (lumper receipt); Tolls and scale fees  1 route 780.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. Please provide supporting backup for the variance. No payment has been approved.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention  2.0 hr 450.00 (signed in/out times); Lumper service  1 stop 825.00 (lumper receipt); Tolls and scale fees  1 route 780.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. No payment has been approved.\n\nPlease send backup for these accessorial charges:\n- Detention  2.0 hr 450.00: signed in/out times\n- Lumper service  1 stop 825.00: lumper receipt\n- Tolls and scale fees  1 route 780.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -1584,13 +1807,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nVENDOR: ABC Logistics\nINVOICE NUMBER: INV-7201\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nINVOICE DATE: 2026-09-04\nLOAD / BOL: BOL-73000\nDESCRIPTION  BASIS  CHARGE\nLinehaul  2 loads  $8,600.00\nFuel surcharge  2 loads  $1,720.00\nDetention  2.0 hr  $450.00\nLumper service  1 stop  $825.00\nTolls and scale fees  1 route  $780.",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "2ffc7f0b-d38b-4cc2-8a0d-3eac04824b08",
-        "created_at": "2026-09-27T05:02:15.388863+00:00",
+        "packet_id": "da74a07b-70cf-41cf-b536-23b173b86bce",
+        "created_at": "2026-09-28T01:42:20.131274+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -1821,7 +2042,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.591,
+          "latency_seconds": 0.555,
           "benchmark_method": "rules"
         }
       }
@@ -1843,15 +2064,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.007,
+      "pipeline_seconds": 0.008,
       "ingestion_seconds": 0.005,
-      "processing_seconds": 0.002,
+      "processing_seconds": 0.003,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -1906,7 +2127,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -1938,19 +2170,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 2 loads",
+              "amount": "8600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 2 loads",
+              "amount": "1720.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "825.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "780.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "amount_mismatch",
           "recommended_action": "short_pay",
-          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup.",
-          "confidence": "high",
+          "rationale": "Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention | 2.0 hr 450.00 (signed in/out times); Lumper service | 1 stop 825.00 (lumper receipt); Tolls and scale fees | 1 route 780.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. Please provide supporting backup for the variance. No payment has been approved.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: short_pay. Invoice exceeds PO by 375.00 USD (tolerance 100.00). Propose 12000.00 USD pending human approval and variance backup. Backup required before approval: Detention | 2.0 hr 450.00 (signed in/out times); Lumper service | 1 stop 825.00 (lumper receipt); Tolls and scale fees | 1 route 780.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Short-pay notice for INV-7201 / PO-4821\n\nHello ABC Logistics billing team,\n\nWe received invoice INV-7201 for 12375.00 against PO-4821 at 12000.00. The variance is 375.00.\n\nAP proposes paying the purchase order amount of 12000.00, subject to human approval. No payment has been approved.\n\nPlease send backup for these accessorial charges:\n- Detention | 2.0 hr 450.00: signed in/out times\n- Lumper service | 1 stop 825.00: lumper receipt\n- Tolls and scale fees | 1 route 780.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -1959,13 +2227,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7201\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-04\n\nLoad / BOL: BOL-73000\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 2 loads                         ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "191b1cf2-a7e6-4c99-aa4a-34e5f16de2ff",
-        "created_at": "2026-09-27T05:02:15.398067+00:00",
+        "packet_id": "7539c2a6-84cb-4f9a-8a19-5a64284bd663",
+        "created_at": "2026-09-28T01:42:20.140998+00:00",
         "source_email_preview": "Invoice INV-7201 for PO-4821\nHello AP team,\nPlease review invoice INV-7201 for PO-4821.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -2016,13 +2282,13 @@
       "proposal": true,
       "pipeline_seconds": 0.005,
       "ingestion_seconds": 0.002,
-      "processing_seconds": 0.002,
+      "processing_seconds": 0.003,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -2077,7 +2343,19 @@
             "currency": "USD",
             "lane": "Newark, NJ -> Atlanta, GA",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts",
+                "stop_off": "signed delivery receipt for each stop"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-204",
@@ -2108,19 +2386,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "5425.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1085.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off | 1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "backup_required",
+              "backup": "signed delivery receipt for each stop"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "865.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls | 1 route",
+              "amount": "550.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off | 1 stop 375.00 (signed delivery receipt for each stop); Lumper service | 1 stop 865.00 (lumper receipt); Tolls | 1 route 550.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off | 1 stop 375.00 (signed delivery receipt for each stop); Lumper service | 1 stop 865.00 (lumper receipt); Tolls | 1 route 550.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Stop-off | 1 stop 375.00: signed delivery receipt for each stop\n- Lumper service | 1 stop 865.00: lumper receipt\n- Tolls | 1 route 550.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -2129,13 +2443,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nInvoice number: INV-7202\n\nPO reference: PO-5502\n\nBill to: Northline Freight Brokerage\n\nVendor: Harbor Line Haul\n\nLoad / BOL: BOL-73001\n\nInvoice date: 2026-09-05\n  DESCRIPTION / SERVICE                                                                 BASIS                       CHARGE (USD)\n\n  Linehaul | 1 load                        ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "f26b3b67-3292-4467-a4b1-59c31e0fa3a1",
-        "created_at": "2026-09-27T05:02:15.404557+00:00",
+        "packet_id": "a02c5b0b-dc35-4609-8824-71eaa5442ec8",
+        "created_at": "2026-09-28T01:42:20.148275+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -2174,15 +2486,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.307,
-      "ingestion_seconds": 0.305,
+      "pipeline_seconds": 0.275,
+      "ingestion_seconds": 0.273,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -2237,7 +2549,19 @@
             "currency": "USD",
             "lane": "Newark, NJ -> Atlanta, GA",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts",
+                "stop_off": "signed delivery receipt for each stop"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-204",
@@ -2268,19 +2592,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "5425.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1085.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off  1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "backup_required",
+              "backup": "signed delivery receipt for each stop"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "865.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls  1 route",
+              "amount": "550.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off  1 stop 375.00 (signed delivery receipt for each stop); Lumper service  1 stop 865.00 (lumper receipt); Tolls  1 route 550.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off  1 stop 375.00 (signed delivery receipt for each stop); Lumper service  1 stop 865.00 (lumper receipt); Tolls  1 route 550.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Stop-off  1 stop 375.00: signed delivery receipt for each stop\n- Lumper service  1 stop 865.00: lumper receipt\n- Tolls  1 route 550.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -2289,13 +2649,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nINVOICE NUMBER: INV-7202\nPO REFERENCE: PO-5502\nBILL TO: Northline Freight Brokerage\nVENDOR: Harbor Line Haul\nLOAD / BOL: BOL-73001\nINVOICE DATE: 2026-09-05\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $5,425.00\nFuel surcharge  1 load  $1,085.00\nStop-off  1 stop  $375.00\nLumper service  1 stop  $865.00\nTolls  1 route  $550.00\nTOTAL DUE  U",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "7ca378fc-0dd7-4ffd-850c-495ca4fbe560",
-        "created_at": "2026-09-27T05:02:15.712781+00:00",
+        "packet_id": "483b6176-2676-448f-bece-be6e92605417",
+        "created_at": "2026-09-28T01:42:20.425052+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -2525,7 +2883,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.305,
+          "latency_seconds": 0.273,
           "benchmark_method": "rules"
         }
       }
@@ -2547,15 +2905,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.612,
-      "ingestion_seconds": 0.61,
+      "pipeline_seconds": 0.539,
+      "ingestion_seconds": 0.537,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -2610,7 +2968,19 @@
             "currency": "USD",
             "lane": "Newark, NJ -> Atlanta, GA",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts",
+                "stop_off": "signed delivery receipt for each stop"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-204",
@@ -2641,19 +3011,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "5425.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1085.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off  1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "backup_required",
+              "backup": "signed delivery receipt for each stop"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "865.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls  1 route",
+              "amount": "550.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off  1 stop 375.00 (signed delivery receipt for each stop); Lumper service  1 stop 865.00 (lumper receipt); Tolls  1 route 550.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off  1 stop 375.00 (signed delivery receipt for each stop); Lumper service  1 stop 865.00 (lumper receipt); Tolls  1 route 550.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Stop-off  1 stop 375.00: signed delivery receipt for each stop\n- Lumper service  1 stop 865.00: lumper receipt\n- Tolls  1 route 550.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -2662,13 +3068,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nINVOICE NUMBER: INV-7202\nPO REFERENCE: PO-5502\nBILL TO: Northline Freight Brokerage\nVENDOR: Harbor Line Haul\nLOAD / BOL: BOL-73001\nINVOICE DATE: 2026-09-05\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $5,425.00\nFuel surcharge  1 load  $1,085.00\nStop-off  1 stop  $375.00\nLumper service  1 stop  $865.00\nTolls  1 route  $550.00\nTOTAL DUE  U",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "005252ab-316e-4cd5-91ba-f6a143b25d7f",
-        "created_at": "2026-09-27T05:02:16.328070+00:00",
+        "packet_id": "e30bb23c-00c6-45cd-a5f1-8ea57d605731",
+        "created_at": "2026-09-28T01:42:20.966210+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -2899,7 +3303,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.61,
+          "latency_seconds": 0.537,
           "benchmark_method": "rules"
         }
       }
@@ -2921,7 +3325,7 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.007,
+      "pipeline_seconds": 0.008,
       "ingestion_seconds": 0.005,
       "processing_seconds": 0.002,
       "packet": {
@@ -2929,7 +3333,7 @@
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -2984,7 +3388,19 @@
             "currency": "USD",
             "lane": "Newark, NJ -> Atlanta, GA",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts",
+                "stop_off": "signed delivery receipt for each stop"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-204",
@@ -3015,19 +3431,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "5425.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1085.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off | 1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "backup_required",
+              "backup": "signed delivery receipt for each stop"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "865.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls | 1 route",
+              "amount": "550.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off | 1 stop 375.00 (signed delivery receipt for each stop); Lumper service | 1 stop 865.00 (lumper receipt); Tolls | 1 route 550.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Stop-off | 1 stop 375.00 (signed delivery receipt for each stop); Lumper service | 1 stop 865.00 (lumper receipt); Tolls | 1 route 550.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7202 matched to PO-5502\n\nHello Harbor Line Haul billing team,\n\nInvoice INV-7202 is within the tolerance for PO-5502 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Stop-off | 1 stop 375.00: signed delivery receipt for each stop\n- Lumper service | 1 stop 865.00: lumper receipt\n- Tolls | 1 route 550.00: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -3036,13 +3488,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nInvoice number: INV-7202\n\nPO reference: PO-5502\n\nBill to: Northline Freight Brokerage\n\nVendor: Harbor Line Haul\n\nLoad / BOL: BOL-73001\n\nInvoice date: 2026-09-05\n  DESCRIPTION / SERVICE                                                                 BASIS                       CHARGE (USD)\n\n  Linehaul | 1 load                        ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "aa99c228-6cc4-4757-ba8e-7f944f13cd45",
-        "created_at": "2026-09-27T05:02:16.338625+00:00",
+        "packet_id": "b6d7ab75-af1a-4479-b6b6-dbbd352d2748",
+        "created_at": "2026-09-28T01:42:20.977234+00:00",
         "source_email_preview": "Invoice INV-7202 for PO-5502\nHello AP team,\nPlease review invoice INV-7202 for PO-5502.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -3091,15 +3541,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.006,
-      "ingestion_seconds": 0.003,
-      "processing_seconds": 0.003,
+      "pipeline_seconds": 0.004,
+      "ingestion_seconds": 0.002,
+      "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -3179,6 +3628,7 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": null,
+          "charge_review": [],
           "validation_errors": [
             "po_amount: amount must be a decimal number"
           ]
@@ -3188,7 +3638,6 @@
           "exception_type": "unknown_po",
           "recommended_action": "request_information",
           "rationale": "No matching purchase order in the broker TMS.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -3202,13 +3651,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nPO reference: PO-9999\n\nInvoice date: 2026-09-06\n\nRemit to: Harbor Line Haul\n\nInvoice number: INV-7203\n\nBill to: Northline Freight Brokerage\n\nLoad / BOL: BOL-73002\n  DESCRIPTION / SERVICE                                                                  BASIS                       CHARGE (USD)\n\n  Linehaul | 1 load                     ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "f2e504bf-0f19-4fbb-a7b6-4ee9a06514a4",
-        "created_at": "2026-09-27T05:02:16.346928+00:00",
+        "packet_id": "5cb5ae11-eaec-4ee3-9393-16b77d14964c",
+        "created_at": "2026-09-28T01:42:20.984469+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -3225,7 +3672,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.003,
+          "latency_seconds": 0.002,
           "benchmark_method": "rules"
         }
       }
@@ -3247,15 +3694,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.306,
-      "ingestion_seconds": 0.304,
+      "pipeline_seconds": 0.257,
+      "ingestion_seconds": 0.255,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -3335,6 +3781,7 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": null,
+          "charge_review": [],
           "validation_errors": [
             "po_amount: amount must be a decimal number"
           ]
@@ -3344,7 +3791,6 @@
           "exception_type": "unknown_po",
           "recommended_action": "request_information",
           "rationale": "No matching purchase order in the broker TMS.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -3358,13 +3804,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nPO REFERENCE: PO-9999\nINVOICE DATE: 2026-09-06\nREMIT TO: Harbor Line Haul\nINVOICE NUMBER: INV-7203\nBILL TO: Northline Freight Brokerage\nLOAD / BOL: BOL-73002\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $6,500.00\nFuel surcharge  1 load  $1,300.00\nDetention  1.5 hr  $425.00\nLumper service  1 stop  $950.00\nTolls and scale fees  1 route  $4",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "c0742f5d-ee74-4c5e-9efd-67e1ddf724ee",
-        "created_at": "2026-09-27T05:02:16.655899+00:00",
+        "packet_id": "23f34354-c7af-41b8-8fe4-064b2100424a",
+        "created_at": "2026-09-28T01:42:21.244279+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -3594,7 +4038,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.304,
+          "latency_seconds": 0.255,
           "benchmark_method": "rules"
         }
       }
@@ -3616,15 +4060,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.008,
-      "ingestion_seconds": 0.006,
+      "pipeline_seconds": 0.007,
+      "ingestion_seconds": 0.005,
       "processing_seconds": 0.003,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -3704,6 +4147,7 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": null,
+          "charge_review": [],
           "validation_errors": [
             "po_amount: amount must be a decimal number"
           ]
@@ -3713,7 +4157,6 @@
           "exception_type": "unknown_po",
           "recommended_action": "request_information",
           "rationale": "No matching purchase order in the broker TMS.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -3727,13 +4170,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nPO reference: PO-9999\n\nInvoice date: 2026-09-06\n\nRemit to: Harbor Line Haul\n\nInvoice number: INV-7203\n\nBill to: Northline Freight Brokerage\n\nLoad / BOL: BOL-73002\n  DESCRIPTION / SERVICE                                                                  BASIS                       CHARGE (USD)\n\n  Linehaul | 1 load                     ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "cb1ceda3-3ffb-42f8-a535-560bb4cf7c8d",
-        "created_at": "2026-09-27T05:02:16.667239+00:00",
+        "packet_id": "b1e07237-4dce-4e05-be46-d47c32d78d7a",
+        "created_at": "2026-09-28T01:42:21.255075+00:00",
         "source_email_preview": "Invoice INV-7203 for PO-9999\nHello AP team,\nPlease review invoice INV-7203 for PO-9999.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -3760,7 +4201,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.006,
+          "latency_seconds": 0.005,
           "benchmark_method": "rules"
         }
       }
@@ -3782,15 +4223,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.005,
+      "pipeline_seconds": 0.004,
       "ingestion_seconds": 0.002,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -3845,7 +4285,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "error": "vendor missing or ambiguous"
@@ -3868,6 +4319,43 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "8250.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1650.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Layover | 1 night",
+              "amount": "1195.00",
+              "category": "layover",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "600.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": [
             "tolerance_usd: amount must be a decimal number"
           ]
@@ -3877,7 +4365,6 @@
           "exception_type": "vendor_mismatch",
           "recommended_action": "escalate",
           "rationale": "Invoice payee does not match the PO vendor.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -3891,13 +4378,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: XYZ Freight LLC\n\nInvoice number: INV-7204\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-07\n\nLoad / BOL: BOL-73003\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 1 load                        ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "e68fdaab-efaf-4a68-b54c-3e482a35b3b6",
-        "created_at": "2026-09-27T05:02:16.675201+00:00",
+        "packet_id": "8afc203d-0ca2-4cdb-9ff0-87c3d878638a",
+        "created_at": "2026-09-28T01:42:21.262927+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -3936,15 +4421,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.357,
-      "ingestion_seconds": 0.355,
+      "pipeline_seconds": 0.268,
+      "ingestion_seconds": 0.266,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -3999,7 +4483,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "error": "vendor missing or ambiguous"
@@ -4022,6 +4517,43 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "8250.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1650.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Layover  1 night",
+              "amount": "1195.00",
+              "category": "layover",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "600.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": [
             "tolerance_usd: amount must be a decimal number"
           ]
@@ -4031,7 +4563,6 @@
           "exception_type": "vendor_mismatch",
           "recommended_action": "escalate",
           "rationale": "Invoice payee does not match the PO vendor.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -4045,13 +4576,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nVENDOR: XYZ Freight LLC\nINVOICE NUMBER: INV-7204\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nINVOICE DATE: 2026-09-07\nLOAD / BOL: BOL-73003\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $8,250.00\nFuel surcharge  1 load  $1,650.00\nDetention  2.0 hr  $450.00\nLayover  1 night  $1,195.00\nTolls and scale fees  1 route  $600.00\nT",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "65a9594c-bafc-4413-a053-e5e39b77a4b0",
-        "created_at": "2026-09-27T05:02:17.034933+00:00",
+        "packet_id": "fc32ac82-5d0d-425d-a117-562d089245f4",
+        "created_at": "2026-09-28T01:42:21.533641+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -4281,7 +4810,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.355,
+          "latency_seconds": 0.266,
           "benchmark_method": "rules"
         }
       }
@@ -4303,15 +4832,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.574,
-      "ingestion_seconds": 0.573,
+      "pipeline_seconds": 0.563,
+      "ingestion_seconds": 0.561,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -4366,7 +4894,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "error": "vendor missing or ambiguous"
@@ -4389,6 +4928,43 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "8250.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1650.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  2.0 hr",
+              "amount": "450.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Layover  1 night",
+              "amount": "1195.00",
+              "category": "layover",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "600.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": [
             "tolerance_usd: amount must be a decimal number"
           ]
@@ -4398,7 +4974,6 @@
           "exception_type": "vendor_mismatch",
           "recommended_action": "escalate",
           "rationale": "Invoice payee does not match the PO vendor.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -4412,13 +4987,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nVENDOR: XYZ Freight LLC\nINVOICE NUMBER: INV-7204\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nINVOICE DATE: 2026-09-07\nLOAD / BOL: BOL-73003\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $8,250.00\nFuel surcharge  1 load  $1,650.00\nDetention  2.0 hr  $450.00\nLayover  1 night  $1,195.00\nTolls and scale fees  1 route  $600.00\nT",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "6dfaa6e3-6329-448b-b7fe-3ab3cf2f1d60",
-        "created_at": "2026-09-27T05:02:17.612691+00:00",
+        "packet_id": "a26acbae-d132-42f4-b880-0969ad5d9bdd",
+        "created_at": "2026-09-28T01:42:22.100984+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -4649,7 +5222,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.573,
+          "latency_seconds": 0.561,
           "benchmark_method": "rules"
         }
       }
@@ -4671,15 +5244,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.005,
+      "pipeline_seconds": 0.006,
       "ingestion_seconds": 0.003,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -4734,7 +5306,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -4766,18 +5349,54 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "7600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1520.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off | 1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "655.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "950.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_REVIEW_REQUIRED",
           "exception_type": "underbilling",
           "recommended_action": "escalate",
-          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount.",
-          "confidence": "low",
+          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off | 1 stop 375.00. Backup required before approval: Lumper service | 1 stop 655.00 (lumper receipt); Tolls and scale fees | 1 route 950.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Human approval is required; no payment has been approved or executed.",
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off | 1 stop 375.00. Backup required before approval: Lumper service | 1 stop 655.00 (lumper receipt); Tolls and scale fees | 1 route 950.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
         "vendor_email_draft": "Subject: Invoice INV-7205 held for review\n\nHello ABC Logistics billing team,\n\nInvoice INV-7205 is on hold pending internal review. We will follow up after AP completes exception handling.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
@@ -4787,13 +5406,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nInvoice number: INV-7205\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nVendor: ABC Logistics\n\nLoad / BOL: BOL-73004\n\nInvoice date: 2026-09-08\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 1 load                          ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "4ba03ba3-307a-426c-b8d9-acf14803e361",
-        "created_at": "2026-09-27T05:02:17.621990+00:00",
+        "packet_id": "2ec8a3ac-8a8b-4d61-86ea-cd303aaa34d0",
+        "created_at": "2026-09-28T01:42:22.111515+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -4832,15 +5449,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.281,
-      "ingestion_seconds": 0.28,
+      "pipeline_seconds": 0.254,
+      "ingestion_seconds": 0.253,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -4895,7 +5511,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -4927,18 +5554,54 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "7600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1520.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off  1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "655.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "950.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_REVIEW_REQUIRED",
           "exception_type": "underbilling",
           "recommended_action": "escalate",
-          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount.",
-          "confidence": "low",
+          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off  1 stop 375.00. Backup required before approval: Lumper service  1 stop 655.00 (lumper receipt); Tolls and scale fees  1 route 950.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Human approval is required; no payment has been approved or executed.",
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off  1 stop 375.00. Backup required before approval: Lumper service  1 stop 655.00 (lumper receipt); Tolls and scale fees  1 route 950.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
         "vendor_email_draft": "Subject: Invoice INV-7205 held for review\n\nHello ABC Logistics billing team,\n\nInvoice INV-7205 is on hold pending internal review. We will follow up after AP completes exception handling.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
@@ -4948,13 +5611,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nINVOICE NUMBER: INV-7205\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nVENDOR: ABC Logistics\nLOAD / BOL: BOL-73004\nINVOICE DATE: 2026-09-08\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $7,600.00\nFuel surcharge  1 load  $1,520.00\nStop-off  1 stop  $375.00\nLumper service  1 stop  $655.00\nTolls and scale fees  1 route  $950.00\n",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "e03e52b4-2db0-4c43-9075-1853fc217ba2",
-        "created_at": "2026-09-27T05:02:17.906716+00:00",
+        "packet_id": "d74d5e49-1f29-400e-9e75-2b4eb5868829",
+        "created_at": "2026-09-28T01:42:22.370034+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -5184,7 +5845,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.28,
+          "latency_seconds": 0.253,
           "benchmark_method": "rules"
         }
       }
@@ -5206,15 +5867,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.562,
-      "ingestion_seconds": 0.561,
+      "pipeline_seconds": 0.602,
+      "ingestion_seconds": 0.6,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -5269,7 +5929,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -5301,18 +5972,54 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "7600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1520.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off  1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "655.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "950.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_REVIEW_REQUIRED",
           "exception_type": "underbilling",
           "recommended_action": "escalate",
-          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount.",
-          "confidence": "low",
+          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off  1 stop 375.00. Backup required before approval: Lumper service  1 stop 655.00 (lumper receipt); Tolls and scale fees  1 route 950.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Human approval is required; no payment has been approved or executed.",
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off  1 stop 375.00. Backup required before approval: Lumper service  1 stop 655.00 (lumper receipt); Tolls and scale fees  1 route 950.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
         "vendor_email_draft": "Subject: Invoice INV-7205 held for review\n\nHello ABC Logistics billing team,\n\nInvoice INV-7205 is on hold pending internal review. We will follow up after AP completes exception handling.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
@@ -5322,13 +6029,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nINVOICE NUMBER: INV-7205\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nVENDOR: ABC Logistics\nLOAD / BOL: BOL-73004\nINVOICE DATE: 2026-09-08\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $7,600.00\nFuel surcharge  1 load  $1,520.00\nStop-off  1 stop  $375.00\nLumper service  1 stop  $655.00\nTolls and scale fees  1 route  $950.00\n",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "b0b608d7-4a1a-433f-9400-a9e2e8960f4a",
-        "created_at": "2026-09-27T05:02:18.472980+00:00",
+        "packet_id": "f709df85-c963-4dd7-8806-7226d687a435",
+        "created_at": "2026-09-28T01:42:22.977021+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -5559,7 +6264,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.561,
+          "latency_seconds": 0.6,
           "benchmark_method": "rules"
         }
       }
@@ -5581,15 +6286,14 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.007,
+      "pipeline_seconds": 0.008,
       "ingestion_seconds": 0.005,
-      "processing_seconds": 0.002,
+      "processing_seconds": 0.003,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -5644,7 +6348,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -5676,18 +6391,54 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "7600.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1520.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Stop-off | 1 stop",
+              "amount": "375.00",
+              "category": "stop_off",
+              "status": "not_on_rate_confirmation",
+              "backup": null
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "655.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "950.00",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_REVIEW_REQUIRED",
           "exception_type": "underbilling",
           "recommended_action": "escalate",
-          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount.",
-          "confidence": "low",
+          "rationale": "Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off | 1 stop 375.00. Backup required before approval: Lumper service | 1 stop 655.00 (lumper receipt); Tolls and scale fees | 1 route 950.00 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Human approval is required; no payment has been approved or executed.",
+        "clerk_brief": "Status: HUMAN_REVIEW_REQUIRED; recommended action: escalate. Invoice is below PO by 900.00. Confirm scope; do not increase payment to the PO amount. Not on rate confirmation: Stop-off | 1 stop 375.00. Backup required before approval: Lumper service | 1 stop 655.00 (lumper receipt); Tolls and scale fees | 1 route 950.00 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
         "vendor_email_draft": "Subject: Invoice INV-7205 held for review\n\nHello ABC Logistics billing team,\n\nInvoice INV-7205 is on hold pending internal review. We will follow up after AP completes exception handling.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
@@ -5697,13 +6448,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nInvoice number: INV-7205\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nVendor: ABC Logistics\n\nLoad / BOL: BOL-73004\n\nInvoice date: 2026-09-08\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 1 load                          ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "cecc7538-f473-4006-ad66-e005ff25bfde",
-        "created_at": "2026-09-27T05:02:18.484491+00:00",
+        "packet_id": "87276b3c-1dc4-4df6-802d-04bdb726bf50",
+        "created_at": "2026-09-28T01:42:22.989907+00:00",
         "source_email_preview": "Invoice INV-7205 for PO-4821\nHello AP team,\nPlease review invoice INV-7205 for PO-4821.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -5752,15 +6501,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.004,
+      "pipeline_seconds": 0.005,
       "ingestion_seconds": 0.002,
-      "processing_seconds": 0.002,
+      "processing_seconds": 0.003,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -5815,7 +6564,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -5847,19 +6607,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "8500.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1700.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 1.5 hr",
+              "amount": "375.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "900.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "597.50",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.5 hr 375.00 (signed in/out times); Lumper service | 1 stop 900.00 (lumper receipt); Tolls and scale fees | 1 route 597.50 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.5 hr 375.00 (signed in/out times); Lumper service | 1 stop 900.00 (lumper receipt); Tolls and scale fees | 1 route 597.50 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention | 1.5 hr 375.00: signed in/out times\n- Lumper service | 1 stop 900.00: lumper receipt\n- Tolls and scale fees | 1 route 597.50: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -5868,13 +6664,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nPO reference: PO-4821\n\nInvoice date: 2026-09-09\n\nRemit to: ABC Logistics\n\nInvoice number: INV-7207\n\nBill to: Northline Freight Brokerage\n\nLoad / BOL: BOL-73005\n  DESCRIPTION / SERVICE                                                                  BASIS                       CHARGE (USD)\n\n  Linehaul | 1 load                        ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "6ffd7b7a-ac7f-4042-9f1b-c82c6ba13345",
-        "created_at": "2026-09-27T05:02:18.492899+00:00",
+        "packet_id": "5d745427-bf23-4556-b38b-af5d76809cc2",
+        "created_at": "2026-09-28T01:42:22.999971+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -5913,15 +6707,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.584,
-      "ingestion_seconds": 0.582,
+      "pipeline_seconds": 0.574,
+      "ingestion_seconds": 0.572,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -5976,7 +6770,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -6008,19 +6813,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "8500.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1700.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  1.5 hr",
+              "amount": "375.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "900.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "597.50",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.5 hr 375.00 (signed in/out times); Lumper service  1 stop 900.00 (lumper receipt); Tolls and scale fees  1 route 597.50 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.5 hr 375.00 (signed in/out times); Lumper service  1 stop 900.00 (lumper receipt); Tolls and scale fees  1 route 597.50 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention  1.5 hr 375.00: signed in/out times\n- Lumper service  1 stop 900.00: lumper receipt\n- Tolls and scale fees  1 route 597.50: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -6029,13 +6870,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nPO REFERENCE: PO-4821\nINVOICE DATE: 2026-09-09\nREMIT TO: ABC Logistics\nINVOICE NUMBER: INV-7207\nBILL TO: Northline Freight Brokerage\nLOAD / BOL: BOL-73005\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $8,500.00\nFuel surcharge  1 load  $1,700.00\nDetention  1.5 hr  $375.00\nLumper service  1 stop  $900.00\nTolls and scale fees  1 route  $597.",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "1f7be074-f527-4df3-b0d2-2dc03ebaba5b",
-        "created_at": "2026-09-27T05:02:19.081521+00:00",
+        "packet_id": "bb692c1c-149e-47d7-9574-dd189da0d7bf",
+        "created_at": "2026-09-28T01:42:23.579102+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -6266,7 +7105,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.582,
+          "latency_seconds": 0.572,
           "benchmark_method": "rules"
         }
       }
@@ -6290,13 +7129,13 @@
       "proposal": true,
       "pipeline_seconds": 0.007,
       "ingestion_seconds": 0.005,
-      "processing_seconds": 0.002,
+      "processing_seconds": 0.003,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -6351,7 +7190,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -6383,19 +7233,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "8500.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1700.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 1.5 hr",
+              "amount": "375.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "900.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "597.50",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.5 hr 375.00 (signed in/out times); Lumper service | 1 stop 900.00 (lumper receipt); Tolls and scale fees | 1 route 597.50 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.5 hr 375.00 (signed in/out times); Lumper service | 1 stop 900.00 (lumper receipt); Tolls and scale fees | 1 route 597.50 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7207 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7207 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention | 1.5 hr 375.00: signed in/out times\n- Lumper service | 1 stop 900.00: lumper receipt\n- Tolls and scale fees | 1 route 597.50: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -6404,13 +7290,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nPO reference: PO-4821\n\nInvoice date: 2026-09-09\n\nRemit to: ABC Logistics\n\nInvoice number: INV-7207\n\nBill to: Northline Freight Brokerage\n\nLoad / BOL: BOL-73005\n  DESCRIPTION / SERVICE                                                                  BASIS                       CHARGE (USD)\n\n  Linehaul | 1 load                        ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "e0b29547-0061-4af5-9c28-8ff51beec7da",
-        "created_at": "2026-09-27T05:02:19.093431+00:00",
+        "packet_id": "d2f8afff-cce9-49b0-a8ff-0721756eb514",
+        "created_at": "2026-09-28T01:42:23.592328+00:00",
         "source_email_preview": "Invoice INV-7207 for PO-4821\nHello AP team,\nPlease review invoice INV-7207 for PO-4821.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -6459,15 +7343,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.004,
+      "pipeline_seconds": 0.005,
       "ingestion_seconds": 0.002,
-      "processing_seconds": 0.002,
+      "processing_seconds": 0.003,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -6522,7 +7406,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -6554,19 +7449,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "8200.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1640.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 1.0 hr",
+              "amount": "350.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "950.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "795.60",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.0 hr 350.00 (signed in/out times); Lumper service | 1 stop 950.00 (lumper receipt); Tolls and scale fees | 1 route 795.60 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.0 hr 350.00 (signed in/out times); Lumper service | 1 stop 950.00 (lumper receipt); Tolls and scale fees | 1 route 795.60 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention | 1.0 hr 350.00: signed in/out times\n- Lumper service | 1 stop 950.00: lumper receipt\n- Tolls and scale fees | 1 route 795.60: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -6575,13 +7506,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7208\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-10\n\nLoad / BOL: BOL-73006\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 1 load                          ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "e95d9c1b-5bba-4995-8690-30ef23e69fd8",
-        "created_at": "2026-09-27T05:02:19.102962+00:00",
+        "packet_id": "7282365c-05bd-4633-9f05-c9c4d315dbbc",
+        "created_at": "2026-09-28T01:42:23.602787+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -6620,15 +7549,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.306,
-      "ingestion_seconds": 0.304,
+      "pipeline_seconds": 0.337,
+      "ingestion_seconds": 0.335,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -6683,7 +7612,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -6715,19 +7655,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "8200.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1640.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  1.0hr",
+              "amount": "350.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "950.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "795.60",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.0hr 350.00 (signed in/out times); Lumper service  1 stop 950.00 (lumper receipt); Tolls and scale fees  1 route 795.60 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.0hr 350.00 (signed in/out times); Lumper service  1 stop 950.00 (lumper receipt); Tolls and scale fees  1 route 795.60 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention  1.0hr 350.00: signed in/out times\n- Lumper service  1 stop 950.00: lumper receipt\n- Tolls and scale fees  1 route 795.60: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -6736,13 +7712,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nVENDOR: ABC Logistics\nINVOICE NUMBER: INV-7208\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nINVOICE DATE: 2026-09-10\nLOAD / BOL: BOL-73006\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $8,200.00\nFuel surcharge  1 load  $1,640.00\nDetention  1.0hr  $350.00\nLumper service  1 stop  $950.00\nTolls and scale fees  1 route  $795.60\n",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "018a5e5c-f5e7-406c-8c9d-5f2a0d0d53a1",
-        "created_at": "2026-09-27T05:02:19.413323+00:00",
+        "packet_id": "1b8f1eb8-634b-4016-9778-6c8be4772b1d",
+        "created_at": "2026-09-28T01:42:23.945455+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -6972,7 +7946,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.304,
+          "latency_seconds": 0.335,
           "benchmark_method": "rules"
         }
       }
@@ -6994,15 +7968,15 @@
       "line_items_exact": true,
       "route_correct": true,
       "proposal": true,
-      "pipeline_seconds": 0.607,
-      "ingestion_seconds": 0.606,
+      "pipeline_seconds": 0.644,
+      "ingestion_seconds": 0.642,
       "processing_seconds": 0.002,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -7057,7 +8031,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -7089,19 +8074,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul  1 load",
+              "amount": "8200.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge  1 load",
+              "amount": "1640.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention  1.0 hr",
+              "amount": "350.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service  1 stop",
+              "amount": "950.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees  1 route",
+              "amount": "795.60",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.0 hr 350.00 (signed in/out times); Lumper service  1 stop 950.00 (lumper receipt); Tolls and scale fees  1 route 795.60 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention  1.0 hr 350.00 (signed in/out times); Lumper service  1 stop 950.00 (lumper receipt); Tolls and scale fees  1 route 795.60 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention  1.0 hr 350.00: signed in/out times\n- Lumper service  1 stop 950.00: lumper receipt\n- Tolls and scale fees  1 route 795.60: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -7110,13 +8131,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nVENDOR: ABC Logistics\nINVOICE NUMBER: INV-7208\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nINVOICE DATE: 2026-09-10\nLOAD / BOL: BOL-73006\nDESCRIPTION  BASIS  CHARGE\nLinehaul  1 load  $8,200.00\nFuel surcharge  1 load  $1,640.00\nDetention  1.0 hr  $350.00\nLumper service  1 stop  $950.00\nTolls and scale fees  1 route  $795.60",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "3e5046c4-f243-4eb6-8af9-17590dd3f375",
-        "created_at": "2026-09-27T05:02:20.027042+00:00",
+        "packet_id": "72d42c3b-1f13-4a2d-9c97-a7388c0ea9a4",
+        "created_at": "2026-09-28T01:42:24.596831+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -7347,7 +8366,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.606,
+          "latency_seconds": 0.642,
           "benchmark_method": "rules"
         }
       }
@@ -7377,7 +8396,7 @@
         "queue": "AP invoice exceptions",
         "human_decision": [
           "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -7432,7 +8451,18 @@
             "currency": "USD",
             "lane": "Chicago, IL -> Dallas, TX",
             "service": "FTL dry van",
-            "status": "open"
+            "status": "open",
+            "rate_confirmation": {
+              "contracted": [
+                "linehaul",
+                "fuel_surcharge"
+              ],
+              "accessorials": {
+                "detention": "signed in/out times",
+                "lumper": "lumper receipt",
+                "tolls": "toll and scale receipts"
+              }
+            }
           },
           "vendor": {
             "vendor_id": "V-100",
@@ -7464,19 +8494,55 @@
           "already_paid": false,
           "prior_payment": null,
           "po_status": "open",
+          "charge_review": [
+            {
+              "description": "Linehaul | 1 load",
+              "amount": "8200.00",
+              "category": "linehaul",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Fuel surcharge | 1 load",
+              "amount": "1640.00",
+              "category": "fuel_surcharge",
+              "status": "contracted",
+              "backup": null
+            },
+            {
+              "description": "Detention | 1.0 hr",
+              "amount": "350.00",
+              "category": "detention",
+              "status": "backup_required",
+              "backup": "signed in/out times"
+            },
+            {
+              "description": "Lumper service | 1 stop",
+              "amount": "950.00",
+              "category": "lumper",
+              "status": "backup_required",
+              "backup": "lumper receipt"
+            },
+            {
+              "description": "Tolls and scale fees | 1 route",
+              "amount": "795.60",
+              "category": "tolls",
+              "status": "backup_required",
+              "backup": "toll and scale receipts"
+            }
+          ],
           "validation_errors": []
         },
         "disposition": {
           "status": "HUMAN_APPROVAL_REQUIRED",
           "exception_type": "matched",
           "recommended_action": "approve_match",
-          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount.",
-          "confidence": "high",
+          "rationale": "Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.0 hr 350.00 (signed in/out times); Lumper service | 1 stop 950.00 (lumper receipt); Tolls and scale fees | 1 route 795.60 (toll and scale receipts).",
           "requires_human_approval": true,
           "auto_post": false
         },
-        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Human approval is required; no payment has been approved or executed.",
-        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
+        "clerk_brief": "Status: HUMAN_APPROVAL_REQUIRED; recommended action: approve_match. Vendor, currency, line totals and amount passed policy checks. Approver may approve the invoice amount. Backup required before approval: Detention | 1.0 hr 350.00 (signed in/out times); Lumper service | 1 stop 950.00 (lumper receipt); Tolls and scale fees | 1 route 795.60 (toll and scale receipts). Human approval is required; no payment has been approved or executed.",
+        "vendor_email_draft": "Subject: Invoice INV-7208 matched to PO-4821\n\nHello ABC Logistics billing team,\n\nInvoice INV-7208 is within the tolerance for PO-4821 and awaits human approval.\n\nPlease send backup for these accessorial charges:\n- Detention | 1.0 hr 350.00: signed in/out times\n- Lumper service | 1 stop 950.00: lumper receipt\n- Tolls and scale fees | 1 route 795.60: toll and scale receipts\n\nRegards,\nAccounts Payable\nNorthline Freight Brokerage",
         "extract_trace": {
           "status": "ok",
           "attempts": 1,
@@ -7485,13 +8551,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nVendor: ABC Logistics\n\nInvoice number: INV-7208\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nInvoice date: 2026-09-10\n\nLoad / BOL: BOL-73006\n  DESCRIPTION / SERVICE                                                                 BASIS                        CHARGE (USD)\n\n  Linehaul | 1 load                          ",
         "status": "HUMAN_APPROVAL_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "43c017ae-7b50-4e9e-a845-d6b98e2259b8",
-        "created_at": "2026-09-27T05:02:20.040061+00:00",
+        "packet_id": "421f7c63-be4a-4a16-8ae5-9be763a96f1d",
+        "created_at": "2026-09-28T01:42:24.611453+00:00",
         "source_email_preview": "Invoice INV-7208 for PO-4821\nHello AP team,\nPlease review invoice INV-7208 for PO-4821.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -7547,8 +8611,7 @@
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -7569,7 +8632,6 @@
           "exception_type": "prompt_injection",
           "recommended_action": "escalate",
           "rationale": "Instruction-like content detected in untrusted documents. Human review required.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -7581,13 +8643,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nInvoice number: INV-7206\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nVendor: ABC Logistics\n\nLoad / BOL: BOL-73007\n\nInvoice date: 2026-09-11\n  DESCRIPTION / SERVICE                                                                    BASIS                         CHARGE (USD)\n\n  Linehaul | 2 loads                     ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "26165306-b548-4190-b873-3162925a543c",
-        "created_at": "2026-09-27T05:02:20.048273+00:00",
+        "packet_id": "1e63fce2-7082-4201-8680-f2f3dc357af8",
+        "created_at": "2026-09-28T01:42:24.620855+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -7626,15 +8686,14 @@
       "line_items_exact": false,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.312,
-      "ingestion_seconds": 0.312,
+      "pipeline_seconds": 0.297,
+      "ingestion_seconds": 0.296,
       "processing_seconds": 0.001,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -7655,7 +8714,6 @@
           "exception_type": "prompt_injection",
           "recommended_action": "escalate",
           "rationale": "Instruction-like content detected in untrusted documents. Human review required.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -7667,13 +8725,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nINVOICE NUMBER: INV-7206\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nVENDOR: ABC Logistics\nLOAD / BOL: BOL-73007\nINVOICE DATE: 2026-09-11\nDESCRIPTION  BASIS  CHARGE\nLinehaul  2 loads  $13,000.00\nFuel surcharge  2 loads  $2,600.00\nDetention  4.0 hr  $1,000.00\nLumper service  1 stop  $1,200.00\nTolls and scale fees  1 route  ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "85b6a26f-c9ee-4cf9-9f28-fed216bbe4c6",
-        "created_at": "2026-09-27T05:02:20.366087+00:00",
+        "packet_id": "27c3a762-ae30-4e65-9b26-4a500dec69f7",
+        "created_at": "2026-09-28T01:42:24.924059+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -7931,7 +8987,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.312,
+          "latency_seconds": 0.296,
           "benchmark_method": "rules"
         }
       }
@@ -7953,15 +9009,14 @@
       "line_items_exact": false,
       "route_correct": true,
       "proposal": false,
-      "pipeline_seconds": 0.58,
-      "ingestion_seconds": 0.579,
+      "pipeline_seconds": 0.589,
+      "ingestion_seconds": 0.588,
       "processing_seconds": 0.001,
       "packet": {
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -7982,7 +9037,6 @@
           "exception_type": "prompt_injection",
           "recommended_action": "escalate",
           "rationale": "Instruction-like content detected in untrusted documents. Human review required.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -7994,13 +9048,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\nCarrier settlement | Domestic transportation\nINVOICE NUMBER: INV-7206\nPO REFERENCE: PO-4821\nBILL TO: Northline Freight Brokerage\nVENDOR: ABC Logistics\nLOAD / BOL: BOL-73007\nINVOICE DATE: 2026-09-11\nDESCRIPTION  BASIS  CHARGE\nLinehaul  2 loads  $13,000.00\nFuel surcharge  2 loads  $2,600.00\nDetention  4.0 hr  $1,000.00\nLumper service  1 stop  $1,200.00\nTolls and scale fees  1 route  ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "83722a86-a607-4fbb-8799-2c5e93b33283",
-        "created_at": "2026-09-27T05:02:20.951975+00:00",
+        "packet_id": "4eb88630-bb2e-4ad1-9b03-aaa7fec4582b",
+        "created_at": "2026-09-28T01:42:25.520204+00:00",
         "source_email_preview": "",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -8259,7 +9311,7 @@
             }
           ],
           "review_required": false,
-          "latency_seconds": 0.579,
+          "latency_seconds": 0.588,
           "benchmark_method": "rules"
         }
       }
@@ -8288,8 +9340,7 @@
         "customer": "Northline Freight Brokerage (mid-market freight broker)",
         "queue": "AP invoice exceptions",
         "human_decision": [
-          "approve",
-          "edit",
+          "reject",
           "escalate"
         ],
         "auto_post": false,
@@ -8310,7 +9361,6 @@
           "exception_type": "prompt_injection",
           "recommended_action": "escalate",
           "rationale": "Instruction-like content detected in untrusted documents. Human review required.",
-          "confidence": "low",
           "requires_human_approval": true,
           "auto_post": false
         },
@@ -8322,13 +9372,11 @@
         },
         "source_invoice_preview": "FREIGHT INVOICE\n\nCarrier settlement | Domestic transportation\n\n\n\n\nInvoice number: INV-7206\n\nPO reference: PO-4821\n\nBill to: Northline Freight Brokerage\n\nVendor: ABC Logistics\n\nLoad / BOL: BOL-73007\n\nInvoice date: 2026-09-11\n  DESCRIPTION / SERVICE                                                                    BASIS                         CHARGE (USD)\n\n  Linehaul | 2 loads                     ",
         "status": "HUMAN_REVIEW_REQUIRED",
-        "brief_trace": {
-          "status": "template"
-        },
-        "packet_id": "2f5dc5ab-4ddc-4df1-93fb-6e1c6a04fe73",
-        "created_at": "2026-09-27T05:02:20.964351+00:00",
+        "packet_id": "560fc60e-aa30-440b-b03b-99cbdad9b355",
+        "created_at": "2026-09-28T01:42:25.533308+00:00",
         "source_email_preview": "Invoice INV-7206 for PO-4821\nHello AP team,\nPlease review invoice INV-7206 for PO-4821.\nThe attached schedule lists linehaul, fuel surcharge, detention, and other accessorial charges. Please identify any disputed items.\n\nRegards,\nCarrier Billing\n",
         "audit_status": "written",
+        "injection_screen": "on",
         "ingestion": {
           "sources": [
             {
@@ -8373,7 +9421,7 @@
       "route_correct": 32,
       "proposal_count": 16,
       "incorrect_proposals": 0,
-      "median_pipeline_seconds": 0.198,
+      "median_pipeline_seconds": 0.184,
       "field_exact_counts": {
         "po_number": 28,
         "vendor_name": 28,
